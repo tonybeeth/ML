@@ -126,9 +126,17 @@ class DataSource(object):
 	def __init__(self,
 			path_pattern,
 			train_percent,
+			validation_percent,
 			train_batch_size,
+			validation_batch_size,
 			test_batch_size,
 			process_pool):
+
+		test_percent = 1 - (train_percent + validation_percent)
+		if test_percent < 0:
+			print('Cannot have a negative test percentage ', test_percent)
+			exit()
+
 		#data load routine
 		print('Data stats. Training: ' ,train_percent, '. Test: ', 1-train_percent,'\n')
 		print('Random SEED: ', SEED)
@@ -143,13 +151,17 @@ class DataSource(object):
 		random.shuffle(occupied_spots_paths)
 		
 		#Data will be split into Testing and Training sets (train_percent is used for training)
-		empty_spots_paths_split = int(train_percent * len(empty_spots_paths))
-		occupied_spots_paths_split = int(train_percent * len(occupied_spots_paths))
+		train_empty_end = int(train_percent * len(empty_spots_paths))
+		valid_empty_end = int((train_percent + validation_percent) * len(empty_spots_paths))
+		train_occupied_end = int(train_percent * len(occupied_spots_paths))
+		valid_occupied_end = int((train_percent + validation_percent) * len(occupied_spots_paths))
 
-		#create training and testing sets
-		self.train = DataSet(empty_spots_paths[:empty_spots_paths_split], occupied_spots_paths[:occupied_spots_paths_split], train_batch_size, image_size, 
+		#create training, validation and testing sets
+		self.train = DataSet(empty_spots_paths[:train_empty_end], occupied_spots_paths[:train_occupied_end], train_batch_size, image_size, 
 			process_pool=process_pool, name='Training')
-		self.test = DataSet(empty_spots_paths[empty_spots_paths_split:], occupied_spots_paths[occupied_spots_paths_split:], test_batch_size, image_size,
+		self.validation = DataSet(empty_spots_paths[train_empty_end:valid_empty_end], occupied_spots_paths[train_occupied_end:valid_occupied_end], 
+			validation_batch_size, image_size, process_pool=process_pool, name='Validation')
+		self.test = DataSet(empty_spots_paths[valid_empty_end:], occupied_spots_paths[valid_occupied_end:], test_batch_size, image_size,
 			process_pool=process_pool, name='Testing')
 
 	@property

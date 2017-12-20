@@ -19,9 +19,11 @@ if __name__ == "__main__":
 		exit()
 
 	BATCH_NORM = True
-	EPOCHS = 10
+	EPOCHS = 20
 	train_percent = 0.7 #percentage of data to train
+	validation_percent = 0.15
 	train_batch_size = 256 #num images used in an ideal training batch
+	validation_batch_size = train_batch_size #using the same size because what the heck
 	test_batch_size = 4000 #num images used in an ideal testing batch
 
 	#directories containing images
@@ -30,7 +32,7 @@ if __name__ == "__main__":
 	data_path_pattern = PKLOT_SEGMENTED_DIR + '*/*/*/'
 
 	process_pool = multiprocessing.Pool(8)
-	dataset = datasource.DataSource(data_path_pattern, train_percent, train_batch_size, test_batch_size, process_pool)
+	dataset = datasource.DataSource(data_path_pattern, train_percent, validation_percent, train_batch_size, validation_batch_size, test_batch_size, process_pool)
 	TRAIN_BATCHES_PER_EPOCH = dataset.train.size/train_batch_size
 
 	with tf.device('/device:GPU:0'):
@@ -103,12 +105,14 @@ if __name__ == "__main__":
 		for i in range(EPOCHS):
 			print("Epoch", i)
 			for j in range(int(TRAIN_BATCHES_PER_EPOCH)):
-				image_data, labels = dataset.train.next_batch()
-				if j % 10 == 0:
+				if j % 50 == 0:
+					#Validation
+					image_data, labels = dataset.validation.next_batch()
 					feed_dict = {images: image_data, correct_labels: labels, dropout_prob: 1.0, training: False}
-					train_accuracy = accuracy.eval(feed_dict=feed_dict)
-					print('\tBatch %d, training accuracy %g' % (j, train_accuracy))
-					
+					validation_accuracy = accuracy.eval(feed_dict=feed_dict)
+					print('\tBatch %d, Validation accuracy %g' % (j, validation_accuracy))
+				
+				image_data, labels = dataset.train.next_batch()
 				sess.run([train_step, extra_update_ops], feed_dict={images: image_data, correct_labels: labels, dropout_prob: 0.5, training: True})		
 		
 		testTime = time.time()		
@@ -116,7 +120,9 @@ if __name__ == "__main__":
 		while dataset.test.batch_rem() is True:
 			image_data, labels = dataset.test.next_batch()
 			feed_dict = {images: image_data, correct_labels: labels, dropout_prob: 1.0, training: False}
-			accuracies.append(accuracy.eval(feed_dict=feed_dict))
+			acc = accuracy.eval(feed_dict=feed_dict)
+			print('Batch size %d, Test accuracy %g' % (len(labels), acc))
+			accuracies.append(acc)
 		
 		print('\nMetrics:')
 		print("Load Time: %fs" %(trainTime - startTime))
@@ -124,7 +130,7 @@ if __name__ == "__main__":
 		print("Test Time: %fs" %(time.time() - testTime))
 		print("Total taken: %fs" %(time.time() - startTime))
 
-		print('\nTest accuracy %g' % np.mean(np.asarray(accuracies)))
+		print('\nAverage Test accuracy %g' % np.mean(np.asarray(accuracies)))
 				
 		process_pool.close()
 		process_pool.join()

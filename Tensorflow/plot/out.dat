@@ -1,149 +1,897 @@
 Data stats. Training:  0.7 . Test:  0.30000000000000004 
 
-../../../../PKLot/PKLot/PKLotSegmented/*/*/*/Empty/*.jpg. #files: 358071
-../../../../PKLot/PKLot/PKLotSegmented/*/*/*/Occupied/*.jpg. #files: 337780
+Random SEED:  50129
+D:\PKLot/PKLot/PKLotSegmented/*/*/*/Empty/*.jpg. #files: 358071
+D:\PKLot/PKLot/PKLotSegmented/*/*/*/Occupied/*.jpg. #files: 337780
 ---------------------------------------------------
 DataSet -> Training
 Number of images-> 487094
 Batch size-> 256
-Image size-> 48
+Image size-> 64
 
 	ImageSet -> Empty spots
 	Number of images-> 250649
 	Batch size-> 128
-	Image size-> 48
+	Image size-> 64
 
 
 	ImageSet -> Occupied spots
 	Number of images-> 236445
 	Batch size-> 128
-	Image size-> 48
+	Image size-> 64
+
+---------------------------------------------------
+---------------------------------------------------
+DataSet -> Validation
+Number of images-> 104379
+Batch size-> 256
+Image size-> 64
+
+	ImageSet -> Empty spots
+	Number of images-> 53711
+	Batch size-> 128
+	Image size-> 64
+
+
+	ImageSet -> Occupied spots
+	Number of images-> 50668
+	Batch size-> 128
+	Image size-> 64
 
 ---------------------------------------------------
 ---------------------------------------------------
 DataSet -> Testing
-Number of images-> 208757
-Batch size-> 8000
-Image size-> 48
+Number of images-> 104378
+Batch size-> 4000
+Image size-> 64
 
 	ImageSet -> Empty spots
-	Number of images-> 107422
-	Batch size-> 4000
-	Image size-> 48
+	Number of images-> 53711
+	Batch size-> 2000
+	Image size-> 64
 
 
 	ImageSet -> Occupied spots
-	Number of images-> 101335
-	Batch size-> 4000
-	Image size-> 48
+	Number of images-> 50667
+	Batch size-> 2000
+	Image size-> 64
 
 ---------------------------------------------------
-step 0, training accuracy 0.496094
-step 100, training accuracy 0.984375
-step 200, training accuracy 0.996094
-step 300, training accuracy 1
-step 400, training accuracy 0.996094
-step 500, training accuracy 0.996094
-step 600, training accuracy 0.996094
-step 700, training accuracy 1
-step 800, training accuracy 1
-step 900, training accuracy 0.992188
-step 1000, training accuracy 0.992188
-step 1100, training accuracy 1
-step 1200, training accuracy 1
-step 1300, training accuracy 0.996094
-step 1400, training accuracy 1
-step 1500, training accuracy 0.996094
-step 1600, training accuracy 1
-step 1700, training accuracy 1
-step 1800, training accuracy 1
-step 1900, training accuracy 1
-step 2000, training accuracy 0.992188
-step 2100, training accuracy 0.996094
-step 2200, training accuracy 0.996094
-step 2300, training accuracy 0.992188
-step 2400, training accuracy 1
-step 2500, training accuracy 1
-step 2600, training accuracy 1
-step 2700, training accuracy 1
-step 2800, training accuracy 1
-step 2900, training accuracy 1
-step 3000, training accuracy 1
-step 3100, training accuracy 1
-step 3200, training accuracy 1
-step 3300, training accuracy 1
-step 3400, training accuracy 1
-step 3500, training accuracy 1
-step 3600, training accuracy 0.996094
-step 3700, training accuracy 1
-step 3800, training accuracy 0.996094
-step 3900, training accuracy 1
-step 4000, training accuracy 1
-step 4100, training accuracy 1
-step 4200, training accuracy 1
-step 4300, training accuracy 1
-step 4400, training accuracy 1
-step 4500, training accuracy 1
-step 4600, training accuracy 1
-step 4700, training accuracy 0.996094
-step 4800, training accuracy 0.996094
-step 4900, training accuracy 1
-step 5000, training accuracy 1
-step 5100, training accuracy 1
-step 5200, training accuracy 0.992188
-step 5300, training accuracy 0.996094
-step 5400, training accuracy 1
-step 5500, training accuracy 1
-step 5600, training accuracy 1
-step 5700, training accuracy 1
-step 5800, training accuracy 1
-step 5900, training accuracy 0.996094
-step 6000, training accuracy 1
-step 6100, training accuracy 1
-step 6200, training accuracy 1
-step 6300, training accuracy 1
-step 6400, training accuracy 1
-step 6500, training accuracy 1
-step 6600, training accuracy 0.996094
-step 6700, training accuracy 1
-step 6800, training accuracy 1
-step 6900, training accuracy 1
-step 7000, training accuracy 1
-step 7100, training accuracy 1
-step 7200, training accuracy 1
-step 7300, training accuracy 1
-step 7400, training accuracy 1
-step 7500, training accuracy 0.996094
-step 7600, training accuracy 1
-step 7700, training accuracy 1
-step 7800, training accuracy 0.996094
-step 7900, training accuracy 1
-step 8000, training accuracy 1
-step 8100, training accuracy 1
-step 8200, training accuracy 1
-step 8300, training accuracy 1
-step 8400, training accuracy 1
-step 8500, training accuracy 1
-step 8600, training accuracy 1
-step 8700, training accuracy 1
-step 8800, training accuracy 0.996094
-step 8900, training accuracy 1
-step 9000, training accuracy 1
-step 9100, training accuracy 1
-step 9200, training accuracy 1
-step 9300, training accuracy 1
-step 9400, training accuracy 1
-step 9500, training accuracy 0.996094
-step 9600, training accuracy 1
-step 9700, training accuracy 1
-step 9800, training accuracy 1
-step 9900, training accuracy 1
+EPOCHS:  20
+TRAIN_BATCHES_PER_EPOCH:  1902 
+
+Epoch 0
+	Batch 0, Validation accuracy 0.332031
+	Batch 50, Validation accuracy 0.527344
+	Batch 100, Validation accuracy 0.703125
+	Batch 150, Validation accuracy 0.847656
+	Batch 200, Validation accuracy 0.933594
+	Batch 250, Validation accuracy 0.96875
+	Batch 300, Validation accuracy 0.957031
+	Batch 350, Validation accuracy 1
+	Batch 400, Validation accuracy 0.992188
+	Batch 450, Validation accuracy 0.953125
+	Batch 500, Validation accuracy 0.96875
+	Batch 550, Validation accuracy 0.992188
+	Batch 600, Validation accuracy 1
+	Batch 650, Validation accuracy 0.996094
+	Batch 700, Validation accuracy 0.992188
+	Batch 750, Validation accuracy 0.972656
+	Batch 800, Validation accuracy 0.996094
+	Batch 850, Validation accuracy 0.988281
+	Batch 900, Validation accuracy 0.996094
+	Batch 950, Validation accuracy 1
+	Batch 1000, Validation accuracy 0.996094
+	Batch 1050, Validation accuracy 0.988281
+	Batch 1100, Validation accuracy 0.992188
+	Batch 1150, Validation accuracy 0.996094
+	Batch 1200, Validation accuracy 0.992188
+	Batch 1250, Validation accuracy 0.996094
+	Batch 1300, Validation accuracy 0.992188
+	Batch 1350, Validation accuracy 0.984375
+	Batch 1400, Validation accuracy 1
+	Batch 1450, Validation accuracy 0.992188
+	Batch 1500, Validation accuracy 0.996094
+	Batch 1550, Validation accuracy 0.96875
+	Batch 1600, Validation accuracy 1
+	Batch 1650, Validation accuracy 0.980469
+	Batch 1700, Validation accuracy 0.992188
+	Batch 1750, Validation accuracy 0.992188
+	Batch 1800, Validation accuracy 0.996094
+	Batch 1850, Validation accuracy 0.933594
+	Batch 1900, Validation accuracy 0.992188
+Epoch 1
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 0.992188
+	Batch 100, Validation accuracy 1
+	Batch 150, Validation accuracy 1
+	Batch 200, Validation accuracy 0.996094
+	Batch 250, Validation accuracy 0.996094
+	Batch 300, Validation accuracy 0.996094
+	Batch 350, Validation accuracy 0.992188
+	Batch 400, Validation accuracy 1
+	Batch 450, Validation accuracy 1
+	Batch 500, Validation accuracy 0.996094
+	Batch 550, Validation accuracy 0.988281
+	Batch 600, Validation accuracy 0.996094
+	Batch 650, Validation accuracy 1
+	Batch 700, Validation accuracy 1
+	Batch 750, Validation accuracy 1
+	Batch 800, Validation accuracy 0.984375
+	Batch 850, Validation accuracy 1
+	Batch 900, Validation accuracy 1
+	Batch 950, Validation accuracy 0.996094
+	Batch 1000, Validation accuracy 1
+	Batch 1050, Validation accuracy 1
+	Batch 1100, Validation accuracy 0.996094
+	Batch 1150, Validation accuracy 0.988281
+	Batch 1200, Validation accuracy 0.96875
+	Batch 1250, Validation accuracy 1
+	Batch 1300, Validation accuracy 0.996094
+	Batch 1350, Validation accuracy 1
+	Batch 1400, Validation accuracy 1
+	Batch 1450, Validation accuracy 1
+	Batch 1500, Validation accuracy 1
+	Batch 1550, Validation accuracy 1
+	Batch 1600, Validation accuracy 0.996094
+	Batch 1650, Validation accuracy 0.996094
+	Batch 1700, Validation accuracy 1
+	Batch 1750, Validation accuracy 1
+	Batch 1800, Validation accuracy 0.996094
+	Batch 1850, Validation accuracy 1
+	Batch 1900, Validation accuracy 1
+Epoch 2
+	Batch 0, Validation accuracy 0.996094
+	Batch 50, Validation accuracy 1
+	Batch 100, Validation accuracy 1
+	Batch 150, Validation accuracy 0.988281
+	Batch 200, Validation accuracy 0.996094
+	Batch 250, Validation accuracy 1
+	Batch 300, Validation accuracy 1
+	Batch 350, Validation accuracy 1
+	Batch 400, Validation accuracy 1
+	Batch 450, Validation accuracy 1
+	Batch 500, Validation accuracy 0.996094
+	Batch 550, Validation accuracy 0.996094
+	Batch 600, Validation accuracy 1
+	Batch 650, Validation accuracy 0.996094
+	Batch 700, Validation accuracy 1
+	Batch 750, Validation accuracy 0.996094
+	Batch 800, Validation accuracy 0.996094
+	Batch 850, Validation accuracy 0.988281
+	Batch 900, Validation accuracy 1
+	Batch 950, Validation accuracy 0.992188
+	Batch 1000, Validation accuracy 0.972656
+	Batch 1050, Validation accuracy 1
+	Batch 1100, Validation accuracy 0.996094
+	Batch 1150, Validation accuracy 1
+	Batch 1200, Validation accuracy 0.992188
+	Batch 1250, Validation accuracy 1
+	Batch 1300, Validation accuracy 1
+	Batch 1350, Validation accuracy 1
+	Batch 1400, Validation accuracy 1
+	Batch 1450, Validation accuracy 0.996094
+	Batch 1500, Validation accuracy 0.996094
+	Batch 1550, Validation accuracy 0.996094
+	Batch 1600, Validation accuracy 1
+	Batch 1650, Validation accuracy 0.992188
+	Batch 1700, Validation accuracy 0.996094
+	Batch 1750, Validation accuracy 0.925781
+	Batch 1800, Validation accuracy 0.996094
+	Batch 1850, Validation accuracy 1
+	Batch 1900, Validation accuracy 1
+Epoch 3
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 1
+	Batch 100, Validation accuracy 0.980469
+	Batch 150, Validation accuracy 0.996094
+	Batch 200, Validation accuracy 0.996094
+	Batch 250, Validation accuracy 1
+	Batch 300, Validation accuracy 1
+	Batch 350, Validation accuracy 0.992188
+	Batch 400, Validation accuracy 1
+	Batch 450, Validation accuracy 0.992188
+	Batch 500, Validation accuracy 0.996094
+	Batch 550, Validation accuracy 1
+	Batch 600, Validation accuracy 0.992188
+	Batch 650, Validation accuracy 0.988281
+	Batch 700, Validation accuracy 1
+	Batch 750, Validation accuracy 1
+	Batch 800, Validation accuracy 0.996094
+	Batch 850, Validation accuracy 0.992188
+	Batch 900, Validation accuracy 1
+	Batch 950, Validation accuracy 0.996094
+	Batch 1000, Validation accuracy 1
+	Batch 1050, Validation accuracy 0.988281
+	Batch 1100, Validation accuracy 1
+	Batch 1150, Validation accuracy 1
+	Batch 1200, Validation accuracy 1
+	Batch 1250, Validation accuracy 1
+	Batch 1300, Validation accuracy 0.996094
+	Batch 1350, Validation accuracy 1
+	Batch 1400, Validation accuracy 0.996094
+	Batch 1450, Validation accuracy 0.996094
+	Batch 1500, Validation accuracy 1
+	Batch 1550, Validation accuracy 1
+	Batch 1600, Validation accuracy 1
+	Batch 1650, Validation accuracy 1
+	Batch 1700, Validation accuracy 0.996094
+	Batch 1750, Validation accuracy 1
+	Batch 1800, Validation accuracy 1
+	Batch 1850, Validation accuracy 1
+	Batch 1900, Validation accuracy 0.992188
+Epoch 4
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 1
+	Batch 100, Validation accuracy 0.996094
+	Batch 150, Validation accuracy 0.992188
+	Batch 200, Validation accuracy 1
+	Batch 250, Validation accuracy 0.996094
+	Batch 300, Validation accuracy 0.996094
+	Batch 350, Validation accuracy 1
+	Batch 400, Validation accuracy 1
+	Batch 450, Validation accuracy 1
+	Batch 500, Validation accuracy 1
+	Batch 550, Validation accuracy 1
+	Batch 600, Validation accuracy 1
+	Batch 650, Validation accuracy 1
+	Batch 700, Validation accuracy 0.996094
+	Batch 750, Validation accuracy 0.996094
+	Batch 800, Validation accuracy 0.988281
+	Batch 850, Validation accuracy 0.996094
+	Batch 900, Validation accuracy 1
+	Batch 950, Validation accuracy 1
+	Batch 1000, Validation accuracy 1
+	Batch 1050, Validation accuracy 1
+	Batch 1100, Validation accuracy 1
+	Batch 1150, Validation accuracy 0.996094
+	Batch 1200, Validation accuracy 1
+	Batch 1250, Validation accuracy 1
+	Batch 1300, Validation accuracy 1
+	Batch 1350, Validation accuracy 0.992188
+	Batch 1400, Validation accuracy 1
+	Batch 1450, Validation accuracy 0.996094
+	Batch 1500, Validation accuracy 0.996094
+	Batch 1550, Validation accuracy 1
+	Batch 1600, Validation accuracy 1
+	Batch 1650, Validation accuracy 0.996094
+	Batch 1700, Validation accuracy 0.992188
+	Batch 1750, Validation accuracy 1
+	Batch 1800, Validation accuracy 1
+	Batch 1850, Validation accuracy 0.996094
+	Batch 1900, Validation accuracy 0.996094
+Epoch 5
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 1
+	Batch 100, Validation accuracy 1
+	Batch 150, Validation accuracy 1
+	Batch 200, Validation accuracy 1
+	Batch 250, Validation accuracy 0.992188
+	Batch 300, Validation accuracy 0.992188
+	Batch 350, Validation accuracy 1
+	Batch 400, Validation accuracy 1
+	Batch 450, Validation accuracy 1
+	Batch 500, Validation accuracy 1
+	Batch 550, Validation accuracy 1
+	Batch 600, Validation accuracy 0.996094
+	Batch 650, Validation accuracy 1
+	Batch 700, Validation accuracy 0.992188
+	Batch 750, Validation accuracy 0.980469
+	Batch 800, Validation accuracy 0.996094
+	Batch 850, Validation accuracy 1
+	Batch 900, Validation accuracy 0.996094
+	Batch 950, Validation accuracy 1
+	Batch 1000, Validation accuracy 1
+	Batch 1050, Validation accuracy 1
+	Batch 1100, Validation accuracy 1
+	Batch 1150, Validation accuracy 1
+	Batch 1200, Validation accuracy 0.996094
+	Batch 1250, Validation accuracy 1
+	Batch 1300, Validation accuracy 1
+	Batch 1350, Validation accuracy 0.996094
+	Batch 1400, Validation accuracy 1
+	Batch 1450, Validation accuracy 0.996094
+	Batch 1500, Validation accuracy 1
+	Batch 1550, Validation accuracy 1
+	Batch 1600, Validation accuracy 1
+	Batch 1650, Validation accuracy 1
+	Batch 1700, Validation accuracy 1
+	Batch 1750, Validation accuracy 1
+	Batch 1800, Validation accuracy 0.996094
+	Batch 1850, Validation accuracy 1
+	Batch 1900, Validation accuracy 1
+Epoch 6
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 1
+	Batch 100, Validation accuracy 1
+	Batch 150, Validation accuracy 1
+	Batch 200, Validation accuracy 1
+	Batch 250, Validation accuracy 0.992188
+	Batch 300, Validation accuracy 0.996094
+	Batch 350, Validation accuracy 0.964844
+	Batch 400, Validation accuracy 1
+	Batch 450, Validation accuracy 1
+	Batch 500, Validation accuracy 0.996094
+	Batch 550, Validation accuracy 1
+	Batch 600, Validation accuracy 1
+	Batch 650, Validation accuracy 0.992188
+	Batch 700, Validation accuracy 0.996094
+	Batch 750, Validation accuracy 0.996094
+	Batch 800, Validation accuracy 1
+	Batch 850, Validation accuracy 0.996094
+	Batch 900, Validation accuracy 1
+	Batch 950, Validation accuracy 1
+	Batch 1000, Validation accuracy 1
+	Batch 1050, Validation accuracy 1
+	Batch 1100, Validation accuracy 0.996094
+	Batch 1150, Validation accuracy 1
+	Batch 1200, Validation accuracy 0.992188
+	Batch 1250, Validation accuracy 0.996094
+	Batch 1300, Validation accuracy 1
+	Batch 1350, Validation accuracy 0.996094
+	Batch 1400, Validation accuracy 1
+	Batch 1450, Validation accuracy 1
+	Batch 1500, Validation accuracy 0.996094
+	Batch 1550, Validation accuracy 1
+	Batch 1600, Validation accuracy 0.992188
+	Batch 1650, Validation accuracy 1
+	Batch 1700, Validation accuracy 1
+	Batch 1750, Validation accuracy 0.996094
+	Batch 1800, Validation accuracy 1
+	Batch 1850, Validation accuracy 1
+	Batch 1900, Validation accuracy 0.996094
+Epoch 7
+	Batch 0, Validation accuracy 0.996094
+	Batch 50, Validation accuracy 0.992188
+	Batch 100, Validation accuracy 1
+	Batch 150, Validation accuracy 1
+	Batch 200, Validation accuracy 1
+	Batch 250, Validation accuracy 1
+	Batch 300, Validation accuracy 0.996094
+	Batch 350, Validation accuracy 1
+	Batch 400, Validation accuracy 1
+	Batch 450, Validation accuracy 1
+	Batch 500, Validation accuracy 0.996094
+	Batch 550, Validation accuracy 1
+	Batch 600, Validation accuracy 1
+	Batch 650, Validation accuracy 1
+	Batch 700, Validation accuracy 1
+	Batch 750, Validation accuracy 1
+	Batch 800, Validation accuracy 1
+	Batch 850, Validation accuracy 1
+	Batch 900, Validation accuracy 1
+	Batch 950, Validation accuracy 1
+	Batch 1000, Validation accuracy 1
+	Batch 1050, Validation accuracy 1
+	Batch 1100, Validation accuracy 1
+	Batch 1150, Validation accuracy 1
+	Batch 1200, Validation accuracy 1
+	Batch 1250, Validation accuracy 1
+	Batch 1300, Validation accuracy 1
+	Batch 1350, Validation accuracy 1
+	Batch 1400, Validation accuracy 1
+	Batch 1450, Validation accuracy 1
+	Batch 1500, Validation accuracy 1
+	Batch 1550, Validation accuracy 0.996094
+	Batch 1600, Validation accuracy 0.996094
+	Batch 1650, Validation accuracy 1
+	Batch 1700, Validation accuracy 1
+	Batch 1750, Validation accuracy 1
+	Batch 1800, Validation accuracy 1
+	Batch 1850, Validation accuracy 1
+	Batch 1900, Validation accuracy 1
+Epoch 8
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 1
+	Batch 100, Validation accuracy 0.996094
+	Batch 150, Validation accuracy 1
+	Batch 200, Validation accuracy 1
+	Batch 250, Validation accuracy 1
+	Batch 300, Validation accuracy 1
+	Batch 350, Validation accuracy 0.996094
+	Batch 400, Validation accuracy 1
+	Batch 450, Validation accuracy 1
+	Batch 500, Validation accuracy 0.996094
+	Batch 550, Validation accuracy 1
+	Batch 600, Validation accuracy 1
+	Batch 650, Validation accuracy 1
+	Batch 700, Validation accuracy 1
+	Batch 750, Validation accuracy 0.996094
+	Batch 800, Validation accuracy 1
+	Batch 850, Validation accuracy 1
+	Batch 900, Validation accuracy 0.996094
+	Batch 950, Validation accuracy 1
+	Batch 1000, Validation accuracy 0.996094
+	Batch 1050, Validation accuracy 1
+	Batch 1100, Validation accuracy 1
+	Batch 1150, Validation accuracy 0.996094
+	Batch 1200, Validation accuracy 0.996094
+	Batch 1250, Validation accuracy 0.996094
+	Batch 1300, Validation accuracy 1
+	Batch 1350, Validation accuracy 1
+	Batch 1400, Validation accuracy 0.996094
+	Batch 1450, Validation accuracy 1
+	Batch 1500, Validation accuracy 1
+	Batch 1550, Validation accuracy 1
+	Batch 1600, Validation accuracy 1
+	Batch 1650, Validation accuracy 1
+	Batch 1700, Validation accuracy 1
+	Batch 1750, Validation accuracy 1
+	Batch 1800, Validation accuracy 1
+	Batch 1850, Validation accuracy 1
+	Batch 1900, Validation accuracy 1
+Epoch 9
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 1
+	Batch 100, Validation accuracy 1
+	Batch 150, Validation accuracy 1
+	Batch 200, Validation accuracy 1
+	Batch 250, Validation accuracy 1
+	Batch 300, Validation accuracy 1
+	Batch 350, Validation accuracy 1
+	Batch 400, Validation accuracy 1
+	Batch 450, Validation accuracy 1
+	Batch 500, Validation accuracy 1
+	Batch 550, Validation accuracy 0.996094
+	Batch 600, Validation accuracy 1
+	Batch 650, Validation accuracy 0.996094
+	Batch 700, Validation accuracy 0.996094
+	Batch 750, Validation accuracy 1
+	Batch 800, Validation accuracy 0.996094
+	Batch 850, Validation accuracy 1
+	Batch 900, Validation accuracy 1
+	Batch 950, Validation accuracy 1
+	Batch 1000, Validation accuracy 0.996094
+	Batch 1050, Validation accuracy 1
+	Batch 1100, Validation accuracy 1
+	Batch 1150, Validation accuracy 0.996094
+	Batch 1200, Validation accuracy 1
+	Batch 1250, Validation accuracy 1
+	Batch 1300, Validation accuracy 1
+	Batch 1350, Validation accuracy 1
+	Batch 1400, Validation accuracy 1
+	Batch 1450, Validation accuracy 1
+	Batch 1500, Validation accuracy 1
+	Batch 1550, Validation accuracy 0.996094
+	Batch 1600, Validation accuracy 1
+	Batch 1650, Validation accuracy 0.996094
+	Batch 1700, Validation accuracy 1
+	Batch 1750, Validation accuracy 1
+	Batch 1800, Validation accuracy 1
+	Batch 1850, Validation accuracy 1
+	Batch 1900, Validation accuracy 1
+Epoch 10
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 1
+	Batch 100, Validation accuracy 1
+	Batch 150, Validation accuracy 0.996094
+	Batch 200, Validation accuracy 1
+	Batch 250, Validation accuracy 0.995763
+	Batch 300, Validation accuracy 1
+	Batch 350, Validation accuracy 1
+	Batch 400, Validation accuracy 0.996094
+	Batch 450, Validation accuracy 1
+	Batch 500, Validation accuracy 1
+	Batch 550, Validation accuracy 1
+	Batch 600, Validation accuracy 1
+	Batch 650, Validation accuracy 1
+	Batch 700, Validation accuracy 1
+	Batch 750, Validation accuracy 1
+	Batch 800, Validation accuracy 0.996094
+	Batch 850, Validation accuracy 0.996094
+	Batch 900, Validation accuracy 0.992188
+	Batch 950, Validation accuracy 1
+	Batch 1000, Validation accuracy 0.996094
+	Batch 1050, Validation accuracy 1
+	Batch 1100, Validation accuracy 0.996094
+	Batch 1150, Validation accuracy 1
+	Batch 1200, Validation accuracy 0.996094
+	Batch 1250, Validation accuracy 1
+	Batch 1300, Validation accuracy 1
+	Batch 1350, Validation accuracy 0.996094
+	Batch 1400, Validation accuracy 1
+	Batch 1450, Validation accuracy 1
+	Batch 1500, Validation accuracy 1
+	Batch 1550, Validation accuracy 0.996094
+	Batch 1600, Validation accuracy 0.996094
+	Batch 1650, Validation accuracy 0.996094
+	Batch 1700, Validation accuracy 1
+	Batch 1750, Validation accuracy 0.996094
+	Batch 1800, Validation accuracy 0.996094
+	Batch 1850, Validation accuracy 1
+	Batch 1900, Validation accuracy 0.996094
+Epoch 11
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 1
+	Batch 100, Validation accuracy 0.996094
+	Batch 150, Validation accuracy 0.996094
+	Batch 200, Validation accuracy 0.996094
+	Batch 250, Validation accuracy 1
+	Batch 300, Validation accuracy 0.996094
+	Batch 350, Validation accuracy 1
+	Batch 400, Validation accuracy 1
+	Batch 450, Validation accuracy 1
+	Batch 500, Validation accuracy 1
+	Batch 550, Validation accuracy 1
+	Batch 600, Validation accuracy 0.980469
+	Batch 650, Validation accuracy 0.996094
+	Batch 700, Validation accuracy 1
+	Batch 750, Validation accuracy 1
+	Batch 800, Validation accuracy 1
+	Batch 850, Validation accuracy 1
+	Batch 900, Validation accuracy 1
+	Batch 950, Validation accuracy 1
+	Batch 1000, Validation accuracy 1
+	Batch 1050, Validation accuracy 1
+	Batch 1100, Validation accuracy 0.996094
+	Batch 1150, Validation accuracy 1
+	Batch 1200, Validation accuracy 1
+	Batch 1250, Validation accuracy 1
+	Batch 1300, Validation accuracy 1
+	Batch 1350, Validation accuracy 1
+	Batch 1400, Validation accuracy 0.996094
+	Batch 1450, Validation accuracy 1
+	Batch 1500, Validation accuracy 1
+	Batch 1550, Validation accuracy 1
+	Batch 1600, Validation accuracy 0.992188
+	Batch 1650, Validation accuracy 0.996094
+	Batch 1700, Validation accuracy 1
+	Batch 1750, Validation accuracy 1
+	Batch 1800, Validation accuracy 1
+	Batch 1850, Validation accuracy 0.996094
+	Batch 1900, Validation accuracy 0.996094
+Epoch 12
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 1
+	Batch 100, Validation accuracy 1
+	Batch 150, Validation accuracy 0.996094
+	Batch 200, Validation accuracy 1
+	Batch 250, Validation accuracy 1
+	Batch 300, Validation accuracy 0.996094
+	Batch 350, Validation accuracy 0.996094
+	Batch 400, Validation accuracy 1
+	Batch 450, Validation accuracy 1
+	Batch 500, Validation accuracy 1
+	Batch 550, Validation accuracy 1
+	Batch 600, Validation accuracy 1
+	Batch 650, Validation accuracy 1
+	Batch 700, Validation accuracy 1
+	Batch 750, Validation accuracy 1
+	Batch 800, Validation accuracy 1
+	Batch 850, Validation accuracy 1
+	Batch 900, Validation accuracy 1
+	Batch 950, Validation accuracy 1
+	Batch 1000, Validation accuracy 1
+	Batch 1050, Validation accuracy 0.996094
+	Batch 1100, Validation accuracy 1
+	Batch 1150, Validation accuracy 1
+	Batch 1200, Validation accuracy 1
+	Batch 1250, Validation accuracy 0.996094
+	Batch 1300, Validation accuracy 1
+	Batch 1350, Validation accuracy 1
+	Batch 1400, Validation accuracy 0.996094
+	Batch 1450, Validation accuracy 1
+	Batch 1500, Validation accuracy 0.996094
+	Batch 1550, Validation accuracy 1
+	Batch 1600, Validation accuracy 1
+	Batch 1650, Validation accuracy 0.996094
+	Batch 1700, Validation accuracy 1
+	Batch 1750, Validation accuracy 0.996094
+	Batch 1800, Validation accuracy 0.996094
+	Batch 1850, Validation accuracy 1
+	Batch 1900, Validation accuracy 1
+Epoch 13
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 1
+	Batch 100, Validation accuracy 1
+	Batch 150, Validation accuracy 1
+	Batch 200, Validation accuracy 1
+	Batch 250, Validation accuracy 1
+	Batch 300, Validation accuracy 0.996094
+	Batch 350, Validation accuracy 1
+	Batch 400, Validation accuracy 0.996094
+	Batch 450, Validation accuracy 1
+	Batch 500, Validation accuracy 0.996094
+	Batch 550, Validation accuracy 1
+	Batch 600, Validation accuracy 1
+	Batch 650, Validation accuracy 1
+	Batch 700, Validation accuracy 1
+	Batch 750, Validation accuracy 0.996094
+	Batch 800, Validation accuracy 1
+	Batch 850, Validation accuracy 1
+	Batch 900, Validation accuracy 1
+	Batch 950, Validation accuracy 0.996094
+	Batch 1000, Validation accuracy 1
+	Batch 1050, Validation accuracy 0.996094
+	Batch 1100, Validation accuracy 0.996094
+	Batch 1150, Validation accuracy 1
+	Batch 1200, Validation accuracy 1
+	Batch 1250, Validation accuracy 1
+	Batch 1300, Validation accuracy 1
+	Batch 1350, Validation accuracy 0.992188
+	Batch 1400, Validation accuracy 1
+	Batch 1450, Validation accuracy 1
+	Batch 1500, Validation accuracy 1
+	Batch 1550, Validation accuracy 1
+	Batch 1600, Validation accuracy 0.996094
+	Batch 1650, Validation accuracy 1
+	Batch 1700, Validation accuracy 0.996094
+	Batch 1750, Validation accuracy 1
+	Batch 1800, Validation accuracy 1
+	Batch 1850, Validation accuracy 1
+	Batch 1900, Validation accuracy 1
+Epoch 14
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 0.996094
+	Batch 100, Validation accuracy 1
+	Batch 150, Validation accuracy 1
+	Batch 200, Validation accuracy 1
+	Batch 250, Validation accuracy 1
+	Batch 300, Validation accuracy 1
+	Batch 350, Validation accuracy 1
+	Batch 400, Validation accuracy 1
+	Batch 450, Validation accuracy 0.992188
+	Batch 500, Validation accuracy 1
+	Batch 550, Validation accuracy 1
+	Batch 600, Validation accuracy 0.996094
+	Batch 650, Validation accuracy 0.996094
+	Batch 700, Validation accuracy 0.996094
+	Batch 750, Validation accuracy 1
+	Batch 800, Validation accuracy 1
+	Batch 850, Validation accuracy 0.996094
+	Batch 900, Validation accuracy 1
+	Batch 950, Validation accuracy 1
+	Batch 1000, Validation accuracy 1
+	Batch 1050, Validation accuracy 0.996094
+	Batch 1100, Validation accuracy 0.992188
+	Batch 1150, Validation accuracy 0.996094
+	Batch 1200, Validation accuracy 1
+	Batch 1250, Validation accuracy 1
+	Batch 1300, Validation accuracy 1
+	Batch 1350, Validation accuracy 0.996094
+	Batch 1400, Validation accuracy 1
+	Batch 1450, Validation accuracy 1
+	Batch 1500, Validation accuracy 1
+	Batch 1550, Validation accuracy 1
+	Batch 1600, Validation accuracy 1
+	Batch 1650, Validation accuracy 0.996094
+	Batch 1700, Validation accuracy 1
+	Batch 1750, Validation accuracy 1
+	Batch 1800, Validation accuracy 1
+	Batch 1850, Validation accuracy 1
+	Batch 1900, Validation accuracy 1
+Epoch 15
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 0.996094
+	Batch 100, Validation accuracy 1
+	Batch 150, Validation accuracy 1
+	Batch 200, Validation accuracy 1
+	Batch 250, Validation accuracy 0.992188
+	Batch 300, Validation accuracy 1
+	Batch 350, Validation accuracy 0.996094
+	Batch 400, Validation accuracy 1
+	Batch 450, Validation accuracy 0.992188
+	Batch 500, Validation accuracy 0.996094
+	Batch 550, Validation accuracy 0.996094
+	Batch 600, Validation accuracy 1
+	Batch 650, Validation accuracy 1
+	Batch 700, Validation accuracy 0.996094
+	Batch 750, Validation accuracy 1
+	Batch 800, Validation accuracy 1
+	Batch 850, Validation accuracy 1
+	Batch 900, Validation accuracy 0.996094
+	Batch 950, Validation accuracy 1
+	Batch 1000, Validation accuracy 1
+	Batch 1050, Validation accuracy 1
+	Batch 1100, Validation accuracy 1
+	Batch 1150, Validation accuracy 1
+	Batch 1200, Validation accuracy 1
+	Batch 1250, Validation accuracy 0.996094
+	Batch 1300, Validation accuracy 1
+	Batch 1350, Validation accuracy 1
+	Batch 1400, Validation accuracy 1
+	Batch 1450, Validation accuracy 1
+	Batch 1500, Validation accuracy 1
+	Batch 1550, Validation accuracy 1
+	Batch 1600, Validation accuracy 1
+	Batch 1650, Validation accuracy 1
+	Batch 1700, Validation accuracy 1
+	Batch 1750, Validation accuracy 1
+	Batch 1800, Validation accuracy 1
+	Batch 1850, Validation accuracy 1
+	Batch 1900, Validation accuracy 1
+Epoch 16
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 1
+	Batch 100, Validation accuracy 1
+	Batch 150, Validation accuracy 0.996094
+	Batch 200, Validation accuracy 1
+	Batch 250, Validation accuracy 0.992188
+	Batch 300, Validation accuracy 0.996094
+	Batch 350, Validation accuracy 0.996094
+	Batch 400, Validation accuracy 1
+	Batch 450, Validation accuracy 0.996094
+	Batch 500, Validation accuracy 1
+	Batch 550, Validation accuracy 0.992188
+	Batch 600, Validation accuracy 0.996094
+	Batch 650, Validation accuracy 1
+	Batch 700, Validation accuracy 1
+	Batch 750, Validation accuracy 1
+	Batch 800, Validation accuracy 1
+	Batch 850, Validation accuracy 1
+	Batch 900, Validation accuracy 1
+	Batch 950, Validation accuracy 1
+	Batch 1000, Validation accuracy 1
+	Batch 1050, Validation accuracy 0.996094
+	Batch 1100, Validation accuracy 1
+	Batch 1150, Validation accuracy 1
+	Batch 1200, Validation accuracy 1
+	Batch 1250, Validation accuracy 1
+	Batch 1300, Validation accuracy 1
+	Batch 1350, Validation accuracy 1
+	Batch 1400, Validation accuracy 0.996094
+	Batch 1450, Validation accuracy 1
+	Batch 1500, Validation accuracy 0.996094
+	Batch 1550, Validation accuracy 0.996094
+	Batch 1600, Validation accuracy 1
+	Batch 1650, Validation accuracy 0.996094
+	Batch 1700, Validation accuracy 1
+	Batch 1750, Validation accuracy 1
+	Batch 1800, Validation accuracy 1
+	Batch 1850, Validation accuracy 1
+	Batch 1900, Validation accuracy 1
+Epoch 17
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 0.996094
+	Batch 100, Validation accuracy 0.996094
+	Batch 150, Validation accuracy 1
+	Batch 200, Validation accuracy 1
+	Batch 250, Validation accuracy 0.996094
+	Batch 300, Validation accuracy 1
+	Batch 350, Validation accuracy 1
+	Batch 400, Validation accuracy 1
+	Batch 450, Validation accuracy 1
+	Batch 500, Validation accuracy 1
+	Batch 550, Validation accuracy 1
+	Batch 600, Validation accuracy 1
+	Batch 650, Validation accuracy 0.996094
+	Batch 700, Validation accuracy 1
+	Batch 750, Validation accuracy 1
+	Batch 800, Validation accuracy 0.996094
+	Batch 850, Validation accuracy 1
+	Batch 900, Validation accuracy 1
+	Batch 950, Validation accuracy 1
+	Batch 1000, Validation accuracy 1
+	Batch 1050, Validation accuracy 1
+	Batch 1100, Validation accuracy 1
+	Batch 1150, Validation accuracy 1
+	Batch 1200, Validation accuracy 1
+	Batch 1250, Validation accuracy 1
+	Batch 1300, Validation accuracy 1
+	Batch 1350, Validation accuracy 1
+	Batch 1400, Validation accuracy 1
+	Batch 1450, Validation accuracy 1
+	Batch 1500, Validation accuracy 1
+	Batch 1550, Validation accuracy 1
+	Batch 1600, Validation accuracy 1
+	Batch 1650, Validation accuracy 1
+	Batch 1700, Validation accuracy 1
+	Batch 1750, Validation accuracy 1
+	Batch 1800, Validation accuracy 1
+	Batch 1850, Validation accuracy 0.996094
+	Batch 1900, Validation accuracy 1
+Epoch 18
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 1
+	Batch 100, Validation accuracy 1
+	Batch 150, Validation accuracy 0.996094
+	Batch 200, Validation accuracy 1
+	Batch 250, Validation accuracy 0.996094
+	Batch 300, Validation accuracy 1
+	Batch 350, Validation accuracy 0.996094
+	Batch 400, Validation accuracy 0.996094
+	Batch 450, Validation accuracy 0.996094
+	Batch 500, Validation accuracy 1
+	Batch 550, Validation accuracy 1
+	Batch 600, Validation accuracy 0.996094
+	Batch 650, Validation accuracy 0.996094
+	Batch 700, Validation accuracy 1
+	Batch 750, Validation accuracy 1
+	Batch 800, Validation accuracy 1
+	Batch 850, Validation accuracy 1
+	Batch 900, Validation accuracy 1
+	Batch 950, Validation accuracy 1
+	Batch 1000, Validation accuracy 1
+	Batch 1050, Validation accuracy 0.996094
+	Batch 1100, Validation accuracy 0.996094
+	Batch 1150, Validation accuracy 1
+	Batch 1200, Validation accuracy 1
+	Batch 1250, Validation accuracy 1
+	Batch 1300, Validation accuracy 0.996094
+	Batch 1350, Validation accuracy 1
+	Batch 1400, Validation accuracy 1
+	Batch 1450, Validation accuracy 1
+	Batch 1500, Validation accuracy 1
+	Batch 1550, Validation accuracy 0.996094
+	Batch 1600, Validation accuracy 0.996094
+	Batch 1650, Validation accuracy 1
+	Batch 1700, Validation accuracy 1
+	Batch 1750, Validation accuracy 1
+	Batch 1800, Validation accuracy 0.996094
+	Batch 1850, Validation accuracy 1
+	Batch 1900, Validation accuracy 0.996094
+Epoch 19
+	Batch 0, Validation accuracy 1
+	Batch 50, Validation accuracy 0.996094
+	Batch 100, Validation accuracy 1
+	Batch 150, Validation accuracy 1
+	Batch 200, Validation accuracy 1
+	Batch 250, Validation accuracy 0.996094
+	Batch 300, Validation accuracy 1
+	Batch 350, Validation accuracy 1
+	Batch 400, Validation accuracy 0.996094
+	Batch 450, Validation accuracy 1
+	Batch 500, Validation accuracy 1
+	Batch 550, Validation accuracy 0.996094
+	Batch 600, Validation accuracy 1
+	Batch 650, Validation accuracy 1
+	Batch 700, Validation accuracy 1
+	Batch 750, Validation accuracy 1
+	Batch 800, Validation accuracy 1
+	Batch 850, Validation accuracy 0.996094
+	Batch 900, Validation accuracy 1
+	Batch 950, Validation accuracy 1
+	Batch 1000, Validation accuracy 0.996094
+	Batch 1050, Validation accuracy 1
+	Batch 1100, Validation accuracy 1
+	Batch 1150, Validation accuracy 1
+	Batch 1200, Validation accuracy 1
+	Batch 1250, Validation accuracy 1
+	Batch 1300, Validation accuracy 0.992188
+	Batch 1350, Validation accuracy 1
+	Batch 1400, Validation accuracy 1
+	Batch 1450, Validation accuracy 0.996094
+	Batch 1500, Validation accuracy 1
+	Batch 1550, Validation accuracy 1
+	Batch 1600, Validation accuracy 0.996094
+	Batch 1650, Validation accuracy 1
+	Batch 1700, Validation accuracy 1
+	Batch 1750, Validation accuracy 1
+	Batch 1800, Validation accuracy 1
+	Batch 1850, Validation accuracy 0.996094
+	Batch 1900, Validation accuracy 1
+Batch size 4000, Test accuracy 0.99925
+Batch size 4000, Test accuracy 0.999
+Batch size 4000, Test accuracy 0.99925
+Batch size 4000, Test accuracy 0.99875
+Batch size 4000, Test accuracy 0.9985
+Batch size 4000, Test accuracy 0.999
+Batch size 4000, Test accuracy 0.998
+Batch size 4000, Test accuracy 0.99825
+Batch size 4000, Test accuracy 0.99825
+Batch size 4000, Test accuracy 0.99925
+Batch size 4000, Test accuracy 0.99925
+Batch size 4000, Test accuracy 0.9985
+Batch size 4000, Test accuracy 0.99775
+Batch size 4000, Test accuracy 0.999
+Batch size 4000, Test accuracy 0.99725
+Batch size 4000, Test accuracy 0.999
+Batch size 4000, Test accuracy 0.99875
+Batch size 4000, Test accuracy 0.99925
+Batch size 4000, Test accuracy 0.99925
+Batch size 4000, Test accuracy 0.99875
+Batch size 4000, Test accuracy 0.9995
+Batch size 4000, Test accuracy 0.999
+Batch size 4000, Test accuracy 0.99825
+Batch size 4000, Test accuracy 0.99875
+Batch size 4000, Test accuracy 0.9985
+Batch size 2667, Test accuracy 0.999625
+Batch size 3711, Test accuracy 0.999192
 
 Metrics:
-Load Time: 2.753381
-Train Time: 1001.558362
+Load Time: 2.301851s
+Train Time: 5111.431000s
+Test Time: 34.587371s
+Total taken: 5148.320222s
 
-Test accuracy 0.9983
-Test Time: 51.238190
-
-Time taken: 1055.549932
+Average Test accuracy 0.99878
