@@ -124,7 +124,7 @@ class DataSet(object):
 	
 class DataSource(object):
 	def __init__(self,
-			path_pattern,
+			lot_path_patterns,
 			train_percent,
 			validation_percent,
 			train_batch_size,
@@ -133,36 +133,52 @@ class DataSource(object):
 			process_pool):
 
 		test_percent = 1 - (train_percent + validation_percent)
+		#data load routine
+		print('Data stats. Training' ,train_percent, ', Validation', validation_percent, ', Testing', test_percent,'\n')
+		print('Random SEED: ', SEED)
 		if test_percent < 0:
 			print('Cannot have a negative test percentage ', test_percent)
 			exit()
 
-		#data load routine
-		print('Data stats. Training: ' ,train_percent, '. Test: ', 1-train_percent,'\n')
-		print('Random SEED: ', SEED)
-		empty_spots_paths = GetImagesPaths(path_pattern, 'Empty')
-		occupied_spots_paths = GetImagesPaths(path_pattern, 'Occupied')
-		self._num_images = len(empty_spots_paths) + len(occupied_spots_paths)
-
-		#Randomly shuffle dataset to avoid training batches with very similar images(https://www.quora.com/Does-the-order-of-training-data-matter-when-training-neural-networks)
-		#Turn shuffling off and see what happens to the accuracy!
-		random.seed(SEED)
-		random.shuffle(empty_spots_paths)
-		random.shuffle(occupied_spots_paths)
+		class PathSet(object):
+			def __init__(self):
+				self.train = []
+				self.validation = []
+				self.test = []
+		empty_paths, occupied_paths = PathSet(), PathSet()
 		
-		#Data will be split into Testing and Training sets (train_percent is used for training)
-		train_empty_end = int(train_percent * len(empty_spots_paths))
-		valid_empty_end = int((train_percent + validation_percent) * len(empty_spots_paths))
-		train_occupied_end = int(train_percent * len(occupied_spots_paths))
-		valid_occupied_end = int((train_percent + validation_percent) * len(occupied_spots_paths))
+		self._num_images = 0
+		random.seed(SEED)
+		#This routine will ensure that each set (train, valid, test) contains the same proportion of data from each lot
+		#E.g given 2 lots, training set will have [train_percent] of lot1 data and [train_percent] of lot2 data
+		for path_pattern in lot_path_patterns:
+			empty_set = GetImagesPaths(path_pattern, 'Empty')
+			occupied_set = GetImagesPaths(path_pattern, 'Occupied')
+			self._num_images = self._num_images + len(empty_set) + len(occupied_set)
 
+			#Randomly shuffle dataset to avoid training batches with very similar images(https://www.quora.com/Does-the-order-of-training-data-matter-when-training-neural-networks)
+			random.shuffle(empty_set)
+			random.shuffle(occupied_set)
+
+			#Data will be split into Testing and Training sets (train_percent is used for training)
+			empty_set_splits = [int(train_percent * len(empty_set)), int((train_percent + validation_percent) * len(empty_set))]
+			occupied_set_splits = [int(train_percent * len(occupied_set)), int((train_percent + validation_percent) * len(occupied_set))]
+
+			for paths, new_set, splits in [(empty_paths, empty_set, empty_set_splits), (occupied_paths, occupied_set, occupied_set_splits)]:
+				paths.train.extend(new_set[:splits[0]])
+				paths.validation.extend(new_set[splits[0]:splits[1]])
+				paths.test.extend(new_set[splits[1]:])
+
+		for paths in [empty_paths, occupied_paths]:
+			random.shuffle(paths.train)
+			random.shuffle(paths.validation)
+			random.shuffle(paths.test)
+		
+		print('Total Images', self.size)
 		#create training, validation and testing sets
-		self.train = DataSet(empty_spots_paths[:train_empty_end], occupied_spots_paths[:train_occupied_end], train_batch_size, image_size, 
-			process_pool=process_pool, name='Training')
-		self.validation = DataSet(empty_spots_paths[train_empty_end:valid_empty_end], occupied_spots_paths[train_occupied_end:valid_occupied_end], 
-			validation_batch_size, image_size, process_pool=process_pool, name='Validation')
-		self.test = DataSet(empty_spots_paths[valid_empty_end:], occupied_spots_paths[valid_occupied_end:], test_batch_size, image_size,
-			process_pool=process_pool, name='Testing')
+		self.train = DataSet(empty_paths.train, occupied_paths.train, train_batch_size, image_size, process_pool=process_pool, name='Training')
+		self.validation = DataSet(empty_paths.validation, occupied_paths.validation, validation_batch_size, image_size, process_pool=process_pool, name='Validation')
+		self.test = DataSet(empty_paths.test, occupied_paths.test, test_batch_size, image_size, process_pool=process_pool, name='Testing')
 
 	@property
 	def size(self):

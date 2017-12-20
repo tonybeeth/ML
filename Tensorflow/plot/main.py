@@ -23,16 +23,17 @@ if __name__ == "__main__":
 	train_percent = 0.7 #percentage of data to train
 	validation_percent = 0.15
 	train_batch_size = 256 #num images used in an ideal training batch
-	validation_batch_size = train_batch_size #using the same size because what the heck
+	validation_batch_size = 3000
 	test_batch_size = 4000 #num images used in an ideal testing batch
 
 	#directories containing images
 	PKLOT_SEGMENTED_DIR = os.environ.get('PKLOT_DATA') + '/PKLot/PKLotSegmented/'
-	#data_path_pattern = PKLOT_SEGMENTED_DIR + 'PUCPR/Cloudy/2012-09-12/'
-	data_path_pattern = PKLOT_SEGMENTED_DIR + '*/*/*/'
+	lot_names = ['PUCPR', 'UFPR04', 'UFPR05']
+	lot_path_patterns = [PKLOT_SEGMENTED_DIR + name + '/*/*/' for name in lot_names]
+	#lot_path_patterns = [PKLOT_SEGMENTED_DIR + 'PUCPR/Cloudy/2012-09-12/']
 
 	process_pool = multiprocessing.Pool(8)
-	dataset = datasource.DataSource(data_path_pattern, train_percent, validation_percent, train_batch_size, validation_batch_size, test_batch_size, process_pool)
+	dataset = datasource.DataSource(lot_path_patterns, train_percent, validation_percent, train_batch_size, validation_batch_size, test_batch_size, process_pool)
 	TRAIN_BATCHES_PER_EPOCH = dataset.train.size/train_batch_size
 
 	with tf.device('/device:GPU:0'):
@@ -128,7 +129,7 @@ if __name__ == "__main__":
 		print("Load Time: %fs" %(trainTime - startTime))
 		print("Train Time: %fs" %(testTime - trainTime))
 		print("Test Time: %fs" %(time.time() - testTime))
-		print("Total taken: %fs" %(time.time() - startTime))
+		print("Total Time taken: %fs" %(time.time() - startTime))
 
 		print('\nAverage Test accuracy %g' % np.mean(np.asarray(accuracies)))
 				
