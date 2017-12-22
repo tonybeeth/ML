@@ -16,7 +16,7 @@ data_path_pattern = PKLOT_SEGMENTED_DIR + 'PUCPR/Cloudy/2012-09-12/'
 
 if __name__ == "__main__":
 	process_pool = multiprocessing.Pool(8)
-	dataset = datasource.DataSource(data_path_pattern, train_percent, validation_percent, train_batch_size, validation_batch_size, test_batch_size, process_pool)
+	dataset = datasource.DataSource([data_path_pattern], train_percent, validation_percent, train_batch_size, validation_batch_size, test_batch_size, process_pool)
 
 	startTime = time.time()
 	

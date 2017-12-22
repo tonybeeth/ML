@@ -9,8 +9,32 @@ def initial_weights(shape):
 	return tf.Variable(tf.truncated_normal(shape, stddev=0.1))
 def initial_biases(shape):
 	return tf.Variable(tf.constant(0.1, shape=shape))
-def conv2d(images, weights, strideDim):
-	return tf.nn.conv2d(images, weights, strides=strideDim, padding='SAME')
+def variable_summaries(var):
+    """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
+    with tf.name_scope('summaries'):
+      mean = tf.reduce_mean(var)
+      tf.summary.scalar('mean', mean)
+      with tf.name_scope('stddev'):
+        stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
+      tf.summary.scalar('stddev', stddev)
+      tf.summary.scalar('max', tf.reduce_max(var))
+      tf.summary.scalar('min', tf.reduce_min(var))
+      tf.summary.histogram('histogram', var)
+
+def conv2d_layer(inputs, weightDim, biasDim, strideDim, use_batch_norm, is_training, layer_name):
+	with tf.name_scope(layer_name) as scope:
+		with tf.name_scope('weights') as scope:
+			weights = initial_weights(weightDim)
+			variable_summaries(weights)
+		with tf.name_scope('biases') as scope:
+			biases = initial_biases(biasDim)
+			variable_summaries(biases)
+		actv_map = tf.nn.relu(tf.nn.conv2d(inputs, weights, strides=strideDim, padding='SAME') + biases)
+		tf.summary.histogram('activations', actv_map)
+		if use_batch_norm is True:
+			actv_map = tf.layers.batch_normalization(actv_map, axis=1, training=is_training)
+			tf.summary.histogram('batch_norm', actv_map)
+		return actv_map
 
 if __name__ == "__main__":
 
@@ -19,74 +43,75 @@ if __name__ == "__main__":
 		exit()
 
 	BATCH_NORM = True
-	EPOCHS = 20
+	EPOCHS = 1
 	train_percent = 0.7 #percentage of data to train
 	validation_percent = 0.15
 	train_batch_size = 256 #num images used in an ideal training batch
-	validation_batch_size = train_batch_size #using the same size because what the heck
+	validation_batch_size = 3000
 	test_batch_size = 4000 #num images used in an ideal testing batch
 
 	#directories containing images
 	PKLOT_SEGMENTED_DIR = os.environ.get('PKLOT_DATA') + '/PKLot/PKLotSegmented/'
-	#data_path_pattern = PKLOT_SEGMENTED_DIR + 'PUCPR/Cloudy/2012-09-12/'
-	data_path_pattern = PKLOT_SEGMENTED_DIR + '*/*/*/'
+	lot_names = ['PUCPR', 'UFPR04', 'UFPR05']
+	#lot_path_patterns = [PKLOT_SEGMENTED_DIR + name + '/*/*/' for name in lot_names]
+	lot_path_patterns = [PKLOT_SEGMENTED_DIR + 'PUCPR/Cloudy/2012-09-12/']
 
 	process_pool = multiprocessing.Pool(8)
-	dataset = datasource.DataSource(data_path_pattern, train_percent, validation_percent, train_batch_size, validation_batch_size, test_batch_size, process_pool)
+	dataset = datasource.DataSource(lot_path_patterns, train_percent, validation_percent, train_batch_size, validation_batch_size, test_batch_size, process_pool)
 	TRAIN_BATCHES_PER_EPOCH = dataset.train.size/train_batch_size
 
 	with tf.device('/device:GPU:0'):
 		#placeholders for images and correct labels
-		images = tf.placeholder(tf.float32, shape=[None, datasource.image_size, datasource.image_size, 3], name='images')
-		correct_labels = tf.placeholder(tf.float32, shape=[None, 2], name='correct_labels')
-		training = tf.placeholder(tf.bool)
+		with tf.name_scope('input'):
+			images = tf.placeholder(tf.float32, shape=[None, datasource.image_size, datasource.image_size, 3], name='images')
+			correct_labels = tf.placeholder(tf.float32, shape=[None, 2], name='correct_labels')
+			training = tf.placeholder(tf.bool)
 		
 		#First convolutional layer
-		w1 = initial_weights([5, 5, 3, 16])
-		b1 = initial_biases([16])
-		actv_map1 = tf.nn.relu(conv2d(images, w1, strideDim=[1, 1, 1, 1]) + b1)
-		if BATCH_NORM is True:
-			actv_map1 = tf.layers.batch_normalization(actv_map1, axis=1, training=training)
+		actv_map1 = conv2d_layer(images, [5, 5, 3, 16], [16], [1, 1, 1, 1], BATCH_NORM, training, 'CNN1')
 
 		#Second convolutional layer
-		w2 = initial_weights([5, 5, 16, 32])
-		b2 = initial_biases([32])
-		actv_map2 = tf.nn.relu(conv2d(actv_map1, w2, strideDim=[1, 2, 2, 1]) + b2)
-		if BATCH_NORM is True:
-			actv_map2 = tf.layers.batch_normalization(actv_map2, axis=1, training=training)
+		actv_map2 = conv2d_layer(actv_map1, [5, 5, 16, 32], [32], [1, 2, 2, 1], BATCH_NORM, training, 'CNN2')
 		
 		#Third convolutional layer
-		w3 = initial_weights([4, 4, 32, 64])
-		b3 = initial_biases([64])
-		actv_map3 = tf.nn.relu(conv2d(actv_map2, w3, strideDim=[1, 2, 2, 1]) + b3)
-		if BATCH_NORM is True:
-			actv_map3 = tf.layers.batch_normalization(actv_map3, axis=1, training=training)
+		actv_map3 = conv2d_layer(actv_map2, [4, 4, 32, 64], [64], [1, 2, 2, 1], BATCH_NORM, training, 'CNN3')
 		
 		flatten_size = int(((datasource.image_size*datasource.image_size)/16)*64)
 		#Fully connected layer 1
-		w_fc1 = initial_weights([flatten_size, 1024])
-		b_fc1 = initial_biases([1024])
-		#flatten activation map from conv 3
-		actv_map3_flat = tf.reshape(actv_map3, [-1, flatten_size])
-		fc1_output = tf.nn.relu(tf.matmul(actv_map3_flat, w_fc1) + b_fc1)
-		if BATCH_NORM is True:
-			fc1_output = tf.layers.batch_normalization(fc1_output, training=training)
+		with tf.name_scope('FC1') as scope:
+			w_fc1 = initial_weights([flatten_size, 1024])
+			b_fc1 = initial_biases([1024])
+			#flatten activation map from conv 3
+			actv_map3_flat = tf.reshape(actv_map3, [-1, flatten_size])
+			fc1_output = tf.nn.relu(tf.matmul(actv_map3_flat, w_fc1) + b_fc1)
+			if BATCH_NORM is True:
+				fc1_output = tf.layers.batch_normalization(fc1_output, training=training)
 		
-		#Apply dropout to reduce overfitting before readout layer
-		dropout_prob = tf.placeholder(tf.float32, name='dropout_prob')
-		#Uncomment this if dropout has to be applied
-		#fc1_output = tf.nn.dropout(fc1_output, dropout_prob)
+		#Apply dropout to reduce overfitting before readout layer (Not needed when using batch normalization)
+		with tf.name_scope('dropout'):
+			dropout_prob = tf.placeholder(tf.float32, name='dropout_prob')
+			if BATCH_NORM is not True: #No need for dropout if batch normalization is used
+				fc1_output = tf.nn.dropout(fc1_output, dropout_prob)
 
 		#Readout layer
-		w_fc2 = initial_weights([1024, 2])
-		b_fc2 = initial_biases([2])
-		predicted_labels = tf.add(tf.matmul(fc1_output, w_fc2), b_fc2, name='predicted')
+		with tf.name_scope('Readout') as scope:
+			w_fc2 = initial_weights([1024, 2])
+			b_fc2 = initial_biases([2])
+			predicted_labels = tf.add(tf.matmul(fc1_output, w_fc2), b_fc2, name='predicted')
 
-		cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=correct_labels, logits=predicted_labels))
+		with tf.name_scope('cross_entropy_total'):
+			cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=correct_labels, logits=predicted_labels))
 		#train using more sophisticated adam optimizer
-		train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
-		correct_pred = tf.equal(tf.argmax(predicted_labels, 1), tf.argmax(correct_labels, 1), name='correct_pred')
-		accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32), name='accuracy')
+		with tf.name_scope('train'):
+			train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+		
+		with tf.name_scope('accuracy'):
+			correct_pred = tf.equal(tf.argmax(predicted_labels, 1), tf.argmax(correct_labels, 1), name='correct_pred')
+			accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32), name='accuracy')
+
+		tf.summary.scalar('accuracy', accuracy)
+		#Merge all summaries
+		merged = tf.summary.merge_all()
 
 		#Extra operations with Batch normalization: https://stackoverflow.com/a/43285333
 		extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
@@ -94,7 +119,11 @@ if __name__ == "__main__":
 	startTime = time.time()
 	
 	with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
-		writer = tf.summary.FileWriter("log/", sess.graph)
+		log_dir = 'log/'
+		train_writer = tf.summary.FileWriter(log_dir + '/train', sess.graph)
+		test_writer = tf.summary.FileWriter(log_dir + '/test', sess.graph)
+		validation_writer = tf.summary.FileWriter(log_dir + '/validation', sess.graph)
+		writer = tf.summary.FileWriter(log_dir, sess.graph)
 		#saver = tf.train.Saver()
 		tf.local_variables_initializer().run()
 		tf.global_variables_initializer().run()
@@ -109,18 +138,23 @@ if __name__ == "__main__":
 					#Validation
 					image_data, labels = dataset.validation.next_batch()
 					feed_dict = {images: image_data, correct_labels: labels, dropout_prob: 1.0, training: False}
-					validation_accuracy = accuracy.eval(feed_dict=feed_dict)
+					summary, validation_accuracy = sess.run([merged, accuracy], feed_dict)
+					validation_writer.add_summary(summary, i*int(TRAIN_BATCHES_PER_EPOCH)+j)
 					print('\tBatch %d, Validation accuracy %g' % (j, validation_accuracy))
 				
 				image_data, labels = dataset.train.next_batch()
-				sess.run([train_step, extra_update_ops], feed_dict={images: image_data, correct_labels: labels, dropout_prob: 0.5, training: True})		
+				summary, _, _ = sess.run([merged, train_step, extra_update_ops], feed_dict={images: image_data, correct_labels: labels, dropout_prob: 0.5, training: True})
+				train_writer.add_summary(summary, i*int(TRAIN_BATCHES_PER_EPOCH)+j)
 		
-		testTime = time.time()		
+		testTime = time.time()	
 		accuracies = []
+		idx = 0
 		while dataset.test.batch_rem() is True:
 			image_data, labels = dataset.test.next_batch()
 			feed_dict = {images: image_data, correct_labels: labels, dropout_prob: 1.0, training: False}
-			acc = accuracy.eval(feed_dict=feed_dict)
+			summary, acc = sess.run([merged, accuracy], feed_dict)
+			test_writer.add_summary(summary, idx)
+			idx = idx+1
 			print('Batch size %d, Test accuracy %g' % (len(labels), acc))
 			accuracies.append(acc)
 		
@@ -128,12 +162,15 @@ if __name__ == "__main__":
 		print("Load Time: %fs" %(trainTime - startTime))
 		print("Train Time: %fs" %(testTime - trainTime))
 		print("Test Time: %fs" %(time.time() - testTime))
-		print("Total taken: %fs" %(time.time() - startTime))
+		print("Total Time taken: %fs" %(time.time() - startTime))
 
 		print('\nAverage Test accuracy %g' % np.mean(np.asarray(accuracies)))
 				
 		process_pool.close()
 		process_pool.join()
+		train_writer.close()
+		validation_writer.close()
+		test_writer.close()
 		writer.close()
 		
 		#saver.save(sess, './model')
