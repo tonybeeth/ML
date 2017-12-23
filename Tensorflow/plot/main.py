@@ -66,9 +66,9 @@ if __name__ == "__main__":
 
 	#directories containing images
 	PKLOT_SEGMENTED_DIR = os.environ.get('PKLOT_DATA') + '/PKLot/PKLotSegmented/'
-	lot_names = ['PUCPR', 'UFPR04', 'UFPR05']
-	#lot_path_patterns = [PKLOT_SEGMENTED_DIR + name + '/*/*/' for name in lot_names]
-	lot_path_patterns = [PKLOT_SEGMENTED_DIR + 'PUCPR/Sunny/*/']
+	lot_names = ['PUC', 'UFPR04', 'UFPR05']
+	lot_path_patterns = [PKLOT_SEGMENTED_DIR + name + '/*/*/' for name in lot_names]
+	#lot_path_patterns = [PKLOT_SEGMENTED_DIR + 'PUCPR/Sunny/*/']
 
 	process_pool = multiprocessing.Pool(8)
 	dataset = datasource.DataSource(lot_path_patterns, train_percent, validation_percent, train_batch_size, validation_batch_size, test_batch_size, process_pool)
@@ -82,16 +82,16 @@ if __name__ == "__main__":
 			images = tf.placeholder(tf.float32, shape=[None, datasource.image_size, datasource.image_size, 3], name='images')
 			correct_labels = tf.placeholder(tf.float32, shape=[None, 2], name='correct_labels')
 			training = tf.placeholder(tf.bool)
-		
+
 		#First convolutional layer
 		actv_map1 = conv2d_layer(images, [5, 5, 3, 16], [16], [1, 1, 1, 1], BATCH_NORM, training, 'CNN1')
 
 		#Second convolutional layer
 		actv_map2 = conv2d_layer(actv_map1, [5, 5, 16, 32], [32], [1, 2, 2, 1], BATCH_NORM, training, 'CNN2')
-		
+
 		#Third convolutional layer
 		actv_map3 = conv2d_layer(actv_map2, [4, 4, 32, 64], [64], [1, 2, 2, 1], BATCH_NORM, training, 'CNN3')
-		
+
 		flatten_size = int(((datasource.image_size*datasource.image_size)/16)*64)
 		#Fully connected layer 1
 		with tf.name_scope('FC1') as scope:
@@ -102,7 +102,7 @@ if __name__ == "__main__":
 			fc1_output = tf.nn.relu(tf.matmul(actv_map3_flat, w_fc1) + b_fc1)
 			if BATCH_NORM is True:
 				fc1_output = tf.layers.batch_normalization(fc1_output, training=training)
-		
+
 		#Apply dropout to reduce overfitting before readout layer (Not needed when using batch normalization)
 		with tf.name_scope('dropout'):
 			dropout_prob = tf.placeholder(tf.float32, name='dropout_prob')
@@ -123,18 +123,18 @@ if __name__ == "__main__":
 			extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 			with tf.control_dependencies(extra_update_ops): #Add update ops as dependency of the train step
 				train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
-		
+
 		with tf.name_scope('accuracy'):
 			correct_pred = tf.equal(tf.argmax(predicted_labels, 1), tf.argmax(correct_labels, 1), name='correct_pred')
 			accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32), name='accuracy')
-		
+
 		#Track accuracy average
 		accuracy_streaming_mean, accuracy_streaming_mean_update, accuracy_streaming_mean_reset = create_streaming_mean_reset_metric('accuracy_streaming_mean', accuracy)
 		tf.summary.scalar('accuracy_streaming_mean', accuracy_streaming_mean)
-		
+
 		#Merge all summaries
 		merged_summary = tf.summary.merge_all()
-		
+
 	#Prevent Tensorflow from allocating all memory on GPU
 	config = tf.ConfigProto(allow_soft_placement=True)
 	config.gpu_options.allow_growth = True
@@ -146,16 +146,16 @@ if __name__ == "__main__":
 		test_writer = tf.summary.FileWriter(log_dir + '/test', sess.graph)
 		validation_writer = tf.summary.FileWriter(log_dir + '/validation', sess.graph)
 		writer = tf.summary.FileWriter(log_dir, sess.graph)
-		#saver = tf.train.Saver()
+		saver = tf.train.Saver()
 		tf.local_variables_initializer().run()
 		tf.global_variables_initializer().run()
-		
+
 		trainTime = time.time()
 		print("EPOCHS: ", EPOCHS)
 		print("TRAIN_BATCHES_PER_EPOCH: ", TRAIN_BATCHES_PER_EPOCH, '\n')
 		print("VALIDATION_BATCHES_PER_EPOCH: ", VALIDATION_BATCHES_PER_EPOCH, '\n')
 		print("TEST_BATCHES_PER_EPOCH: ", TEST_BATCHES_PER_EPOCH, '\n')
-		
+
 		for i in range(EPOCHS):
 			print("Epoch", i)
 			sess.run(accuracy_streaming_mean_reset)
@@ -168,7 +168,7 @@ if __name__ == "__main__":
 					train_writer.add_summary(summary, i)
 				else:
 					sess.run([train_step, accuracy_streaming_mean_update], feed_dict=feed_dict)
-			
+
 			#Perform validation after each epoch of training
 			sess.run(accuracy_streaming_mean_reset)
 			for j in range(VALIDATION_BATCHES_PER_EPOCH):
@@ -180,7 +180,7 @@ if __name__ == "__main__":
 				else:
 					validation_batch_accuracy, _ = sess.run([accuracy, accuracy_streaming_mean_update], feed_dict)
 				print('\tBatch %d, Validation accuracy %g, streaming_acc_avg %g' % (j, validation_batch_accuracy, accuracy_streaming_mean.eval()))
-		
+
 		testTime = time.time()
 		sess.run(accuracy_streaming_mean_reset)
 		for i in range(TEST_BATCHES_PER_EPOCH):
@@ -189,19 +189,19 @@ if __name__ == "__main__":
 			summary, test_batch_accuracy, _ = sess.run([merged_summary, accuracy, accuracy_streaming_mean_update], feed_dict)
 			test_writer.add_summary(summary, i)
 			print('Batch size %d, Test accuracy %g, Avg %g' % (len(labels), test_batch_accuracy, accuracy_streaming_mean.eval()))
-		
+
 		print('\nMetrics:')
 		print("Load Time: %fs" %(trainTime - startTime))
 		print("Train Time: %fs" %(testTime - trainTime))
 		print("Test Time: %fs" %(time.time() - testTime))
 		print("Total Time taken: %fs" %(time.time() - startTime))
-				
+
 		process_pool.close()
 		process_pool.join()
 		train_writer.close()
 		validation_writer.close()
 		test_writer.close()
 		writer.close()
-		
-		#saver.save(sess, './model')
-		
+
+		saver.save(sess, './model/model')
+
