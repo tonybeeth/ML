@@ -115,8 +115,12 @@ class DataSet(object):
 		self._occupied_spots.dump_log()
 		print('---------------------------------------------------')
 		
+	#Returns false after the last batch and starts over
 	def batch_rem(self):
-		return self._num_images_processed < self._num_images
+		return_val = self._num_images_processed < self._num_images
+		if self._num_images_processed >= self._num_images:
+			self._num_images_processed = 0
+		return return_val
 			
 	@property
 	def size(self):

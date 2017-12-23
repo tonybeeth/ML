@@ -4,11 +4,26 @@ import os
 import time
 import multiprocessing
 import datasource
+import math
 
 def initial_weights(shape):
 	return tf.Variable(tf.truncated_normal(shape, stddev=0.1))
+
 def initial_biases(shape):
 	return tf.Variable(tf.constant(0.1, shape=shape))
+
+#Creates operations in the graph to allow the reset of variables used to compute a metric
+def create_reset_metric(metric, scope='reset_metric', *metric_args):
+	with tf.variable_scope(scope):
+		metric_op, update_op = metric(*metric_args)
+		vars = tf.contrib.framework.get_variables(scope, collection=tf.GraphKeys.LOCAL_VARIABLES)
+		reset_op = tf.variables_initializer(vars)
+		return metric_op, update_op, reset_op
+
+#Helper method to create update and reset ops for streaming mean metric
+def create_streaming_mean_reset_metric(scope='streaming_mean_reset_metric', *metric_args):
+	return create_reset_metric(tf.contrib.metrics.streaming_mean, scope, *metric_args)
+
 def variable_summaries(var):
     """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
     with tf.name_scope('summaries'):
@@ -37,28 +52,29 @@ def conv2d_layer(inputs, weightDim, biasDim, strideDim, use_batch_norm, is_train
 		return actv_map
 
 if __name__ == "__main__":
-
 	if os.environ.get('PKLOT_DATA') is None:
 		print('Cannot locate PKLOT_DATA in environment')
 		exit()
 
 	BATCH_NORM = True
-	EPOCHS = 1
+	EPOCHS = 10
 	train_percent = 0.7 #percentage of data to train
 	validation_percent = 0.15
 	train_batch_size = 256 #num images used in an ideal training batch
 	validation_batch_size = 3000
-	test_batch_size = 4000 #num images used in an ideal testing batch
+	test_batch_size = 3000 #num images used in an ideal testing batch
 
 	#directories containing images
 	PKLOT_SEGMENTED_DIR = os.environ.get('PKLOT_DATA') + '/PKLot/PKLotSegmented/'
 	lot_names = ['PUCPR', 'UFPR04', 'UFPR05']
 	#lot_path_patterns = [PKLOT_SEGMENTED_DIR + name + '/*/*/' for name in lot_names]
-	lot_path_patterns = [PKLOT_SEGMENTED_DIR + 'PUCPR/Cloudy/2012-09-12/']
+	lot_path_patterns = [PKLOT_SEGMENTED_DIR + 'PUCPR/Sunny/*/']
 
 	process_pool = multiprocessing.Pool(8)
 	dataset = datasource.DataSource(lot_path_patterns, train_percent, validation_percent, train_batch_size, validation_batch_size, test_batch_size, process_pool)
-	TRAIN_BATCHES_PER_EPOCH = dataset.train.size/train_batch_size
+	TRAIN_BATCHES_PER_EPOCH = math.ceil(dataset.train.size/train_batch_size)
+	VALIDATION_BATCHES_PER_EPOCH = math.ceil(dataset.validation.size/validation_batch_size)
+	TEST_BATCHES_PER_EPOCH = math.ceil(dataset.test.size/test_batch_size)
 
 	with tf.device('/device:GPU:0'):
 		#placeholders for images and correct labels
@@ -103,22 +119,28 @@ if __name__ == "__main__":
 			cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=correct_labels, logits=predicted_labels))
 		#train using more sophisticated adam optimizer
 		with tf.name_scope('train'):
-			train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+			#Extra operations with Batch normalization: https://stackoverflow.com/a/43285333
+			extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+			with tf.control_dependencies(extra_update_ops): #Add update ops as dependency of the train step
+				train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 		
 		with tf.name_scope('accuracy'):
 			correct_pred = tf.equal(tf.argmax(predicted_labels, 1), tf.argmax(correct_labels, 1), name='correct_pred')
 			accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32), name='accuracy')
-
-		tf.summary.scalar('accuracy', accuracy)
-		#Merge all summaries
-		merged = tf.summary.merge_all()
-
-		#Extra operations with Batch normalization: https://stackoverflow.com/a/43285333
-		extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 		
+		#Track accuracy average
+		accuracy_streaming_mean, accuracy_streaming_mean_update, accuracy_streaming_mean_reset = create_streaming_mean_reset_metric('accuracy_streaming_mean', accuracy)
+		tf.summary.scalar('accuracy_streaming_mean', accuracy_streaming_mean)
+		
+		#Merge all summaries
+		merged_summary = tf.summary.merge_all()
+		
+	#Prevent Tensorflow from allocating all memory on GPU
+	config = tf.ConfigProto(allow_soft_placement=True)
+	config.gpu_options.allow_growth = True
+
 	startTime = time.time()
-	
-	with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
+	with tf.Session(config=config) as sess:
 		log_dir = 'log/'
 		train_writer = tf.summary.FileWriter(log_dir + '/train', sess.graph)
 		test_writer = tf.summary.FileWriter(log_dir + '/test', sess.graph)
@@ -130,41 +152,49 @@ if __name__ == "__main__":
 		
 		trainTime = time.time()
 		print("EPOCHS: ", EPOCHS)
-		print("TRAIN_BATCHES_PER_EPOCH: ", int(TRAIN_BATCHES_PER_EPOCH), '\n')
+		print("TRAIN_BATCHES_PER_EPOCH: ", TRAIN_BATCHES_PER_EPOCH, '\n')
+		print("VALIDATION_BATCHES_PER_EPOCH: ", VALIDATION_BATCHES_PER_EPOCH, '\n')
+		print("TEST_BATCHES_PER_EPOCH: ", TEST_BATCHES_PER_EPOCH, '\n')
+		
 		for i in range(EPOCHS):
 			print("Epoch", i)
-			for j in range(int(TRAIN_BATCHES_PER_EPOCH)):
-				if j % 50 == 0:
-					#Validation
-					image_data, labels = dataset.validation.next_batch()
-					feed_dict = {images: image_data, correct_labels: labels, dropout_prob: 1.0, training: False}
-					summary, validation_accuracy = sess.run([merged, accuracy], feed_dict)
-					validation_writer.add_summary(summary, i*int(TRAIN_BATCHES_PER_EPOCH)+j)
-					print('\tBatch %d, Validation accuracy %g' % (j, validation_accuracy))
-				
+			sess.run(accuracy_streaming_mean_reset)
+			for j in range(TRAIN_BATCHES_PER_EPOCH):
 				image_data, labels = dataset.train.next_batch()
-				summary, _, _ = sess.run([merged, train_step, extra_update_ops], feed_dict={images: image_data, correct_labels: labels, dropout_prob: 0.5, training: True})
-				train_writer.add_summary(summary, i*int(TRAIN_BATCHES_PER_EPOCH)+j)
+				feed_dict = {images: image_data, correct_labels: labels, dropout_prob: 0.5, training: True}
+				#Log summary for every last train batch
+				if j == TRAIN_BATCHES_PER_EPOCH-1:
+					summary, _, _ = sess.run([merged_summary, train_step, accuracy_streaming_mean_update], feed_dict=feed_dict)
+					train_writer.add_summary(summary, i)
+				else:
+					sess.run([train_step, accuracy_streaming_mean_update], feed_dict=feed_dict)
+			
+			#Perform validation after each epoch of training
+			sess.run(accuracy_streaming_mean_reset)
+			for j in range(VALIDATION_BATCHES_PER_EPOCH):
+				image_data, labels = dataset.validation.next_batch()
+				feed_dict = {images: image_data, correct_labels: labels, dropout_prob: 1.0, training: False}
+				if j == VALIDATION_BATCHES_PER_EPOCH-1: #Log summary for every last validation batch
+					summary, validation_batch_accuracy, _ = sess.run([merged_summary, accuracy, accuracy_streaming_mean_update], feed_dict)
+					validation_writer.add_summary(summary, i)
+				else:
+					validation_batch_accuracy, _ = sess.run([accuracy, accuracy_streaming_mean_update], feed_dict)
+				print('\tBatch %d, Validation accuracy %g, streaming_acc_avg %g' % (j, validation_batch_accuracy, accuracy_streaming_mean.eval()))
 		
-		testTime = time.time()	
-		accuracies = []
-		idx = 0
-		while dataset.test.batch_rem() is True:
+		testTime = time.time()
+		sess.run(accuracy_streaming_mean_reset)
+		for i in range(TEST_BATCHES_PER_EPOCH):
 			image_data, labels = dataset.test.next_batch()
 			feed_dict = {images: image_data, correct_labels: labels, dropout_prob: 1.0, training: False}
-			summary, acc = sess.run([merged, accuracy], feed_dict)
-			test_writer.add_summary(summary, idx)
-			idx = idx+1
-			print('Batch size %d, Test accuracy %g' % (len(labels), acc))
-			accuracies.append(acc)
+			summary, test_batch_accuracy, _ = sess.run([merged_summary, accuracy, accuracy_streaming_mean_update], feed_dict)
+			test_writer.add_summary(summary, i)
+			print('Batch size %d, Test accuracy %g, Avg %g' % (len(labels), test_batch_accuracy, accuracy_streaming_mean.eval()))
 		
 		print('\nMetrics:')
 		print("Load Time: %fs" %(trainTime - startTime))
 		print("Train Time: %fs" %(testTime - trainTime))
 		print("Test Time: %fs" %(time.time() - testTime))
 		print("Total Time taken: %fs" %(time.time() - startTime))
-
-		print('\nAverage Test accuracy %g' % np.mean(np.asarray(accuracies)))
 				
 		process_pool.close()
 		process_pool.join()
