@@ -71,24 +71,24 @@ if __name__ == "__main__":
     config.gpu_options.allow_growth = True
     with tf.Session(config=config) as sess:
         #Load meta graph and restore weights
-        saver = tf.train.import_meta_graph('../model/model.meta')
-        saver.restore(sess, tf.train.latest_checkpoint('../model/'))
+        saver = tf.train.import_meta_graph('../model_larger_batches/model.meta')
+        saver.restore(sess, tf.train.latest_checkpoint('../model_larger_batches/'))
         #Get tensors from loaded graph
         graph = tf.get_default_graph()
         images = graph.get_tensor_by_name('input/images:0')
-        training_flag = graph.get_tensor_by_name('input/Placeholder:0') #Need to change the name of operation
-        dropout_prob = graph.get_tensor_by_name('dropout/dropout_prob:0')
-        prediction = graph.get_tensor_by_name('Readout/predicted:0')
+        training_flag = graph.get_tensor_by_name('input/training_flag:0')
+        keep_prob = graph.get_tensor_by_name('dropout/keep_prob:0')
+        predicted_results = graph.get_tensor_by_name('Readout/predicted_results:0')
 
         for img_path in img_paths:
             image, coords, spots = extract_image_data(img_path)
-            feed_dict = {images: spots, dropout_prob: 1.0, training_flag: False}
-            predict_result = sess.run(prediction, feed_dict)
-            occupancy_results = np.argmax(predict_result, axis=1)
+            feed_dict = {images: spots, keep_prob: 1.0, training_flag: False}
+            occupancy_results = sess.run(predicted_results, feed_dict)
             
             for spot_result, spot_coords in zip(occupancy_results, coords):
                 #Green for empty spots, red for occupied
                 if bool(spot_result) is True:
+                    #BGR
                     color = (0,0,255)
                 else:
                     color = (0,255,0)
