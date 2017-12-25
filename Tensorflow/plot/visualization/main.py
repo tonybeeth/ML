@@ -2,23 +2,108 @@ import tkinter as tk
 import cv2
 from PIL import ImageTk, Image
 import time
+import numpy as np
+import os
+import glob
+import random
+from pprint import pprint
+import tensorflow as tf
+import re
+import xmltodict
+import json
 
-window = tk.Tk()
-canvas = tk.Canvas(window, width=1300, height=750)
-canvas.pack()
-img = ImageTk.PhotoImage(Image.fromarray(cv2.imread("2012-12-12_10_00_05.jpg", cv2.IMREAD_GRAYSCALE)))
-canvas.create_image(10,10, anchor=tk.NW, image=img)
-window.mainloop()
+image_size = 64
 
-time.sleep(2)
-img = ImageTk.PhotoImage(Image.fromarray(cv2.imread("2012-09-21_06_10_10.jpg", cv2.IMREAD_GRAYSCALE)))
-canvas.create_image(10,10, anchor=tk.NW, image=img)
-time.sleep(2)
-img = ImageTk.PhotoImage(Image.fromarray(cv2.imread("2012-12-12_10_00_05.jpg", cv2.IMREAD_GRAYSCALE)))
-canvas.create_image(10,10, anchor=tk.NW, image=img)
-time.sleep(2)
-img = ImageTk.PhotoImage(Image.fromarray(cv2.imread("2012-09-21_06_10_10.jpg", cv2.IMREAD_GRAYSCALE)))
-canvas.create_image(10,10, anchor=tk.NW, image=img)
-time.sleep(2)
-img = ImageTk.PhotoImage(Image.fromarray(cv2.imread("2012-12-12_10_00_05.jpg", cv2.IMREAD_GRAYSCALE)))
-canvas.create_image(10,10, anchor=tk.NW, image=img)
+def extract_image_data(img_path):
+    image = cv2.imread(img_path)
+    #Get associated xml file with same path
+    xml_path = re.sub('jpg$', 'xml', img_path)
+
+    spots = []
+    coords = []
+    with open(xml_path, 'rb') as xml_file:
+        json_data = json.loads(json.dumps(xmltodict.parse(xml_file)))
+    spaces = json_data['parking']['space']
+    for space in spaces:
+        try:
+            points = space['contour']['point']
+        except(KeyError):
+            points = space['contour']['Point'] #Some xmls use caps 'P' for Point
+
+        #Extract coords with Lambda function
+        coord = lambda i: (int(points[i]['@x']), int(points[i]['@y']))
+        botleft, topleft, topright, botright = coord(0), coord(1), coord(2), coord(3)
+        coords.append((botleft, topleft, topright, botright))
+        #Extract min and max points with Lambda function
+        coords_op = lambda op: (op(botleft[0], botright[0], topleft[0], topright[0]), op(botleft[1], botright[1], topleft[1], topright[1]))
+        minpoint = coords_op(min)
+        maxpoint = coords_op(max)
+
+        #Crop and resize image
+        spot = image[minpoint[1]:maxpoint[1], minpoint[0]:maxpoint[0]]
+        spot = cv2.resize(spot, (image_size, image_size))
+        spots.append(spot)
+    return image, coords, np.asarray(spots)
+
+if __name__ == "__main__":
+    if os.environ.get('PKLOT_DATA') is None:
+        print('Cannot locate PKLOT_DATA in environment')
+        exit()
+
+    window = tk.Tk()
+    canvas = tk.Canvas(window, width=1300, height=750)
+    canvas.pack()
+
+    PKLOT_DIR = os.environ['PKLOT_DATA'] + '/PKLot/PKLot/'
+    lot_names = ['PUCPR', 'UFPR04', 'UFPR05']
+
+    #Retrieve 'num_imgs_per_lot' random images from each parking lot
+    img_paths = []
+    num_imgs_per_lot = 10
+    for lot_name in lot_names:
+        lot_img_pattern = PKLOT_DIR + lot_name + '/*/*/*.jpg'
+        lot_img_paths = glob.glob(lot_img_pattern)
+        img_paths.extend(random.sample(lot_img_paths, num_imgs_per_lot))
+    random.shuffle(img_paths)
+
+    #Create session config with soft placement and prevent allocation of all GPU memory
+    config = tf.ConfigProto(allow_soft_placement=True)
+    config.gpu_options.allow_growth = True
+    with tf.Session(config=config) as sess:
+        #Load meta graph and restore weights
+        saver = tf.train.import_meta_graph('../model/model.meta')
+        saver.restore(sess, tf.train.latest_checkpoint('../model/'))
+        #Get tensors from loaded graph
+        graph = tf.get_default_graph()
+        images = graph.get_tensor_by_name('input/images:0')
+        training_flag = graph.get_tensor_by_name('input/Placeholder:0') #Need to change the name of operation
+        dropout_prob = graph.get_tensor_by_name('dropout/dropout_prob:0')
+        prediction = graph.get_tensor_by_name('Readout/predicted:0')
+
+        for img_path in img_paths:
+            image, coords, spots = extract_image_data(img_path)
+            feed_dict = {images: spots, dropout_prob: 1.0, training_flag: False}
+            predict_result = sess.run(prediction, feed_dict)
+            occupancy_results = np.argmax(predict_result, axis=1)
+            
+            for spot_result, spot_coords in zip(occupancy_results, coords):
+                #Green for empty spots, red for occupied
+                if bool(spot_result) is True:
+                    color = (0,0,255)
+                else:
+                    color = (0,255,0)
+                #Draw lines around spot on image
+                cv2.polylines(image, [np.array(spot_coords)], isClosed=True, color=color, thickness=2)
+
+            #Display results on image
+            cv2.imshow(img_path, image)
+            cv2.waitKey(0)
+
+        # for img_path in img_paths:
+        #     img = cv2.imread(img_path)
+        #     xml_path = re.sub('jpg$', 'xml', img_path)
+
+        #     img = ImageTk.PhotoImage(Image.fromarray(img))
+        #     canvas.create_image(10,10, anchor=tk.NW, image=img)
+        #     window.update()
+        #     time.sleep(.5)
