@@ -80,11 +80,22 @@ if __name__ == "__main__":
         keep_prob = graph.get_tensor_by_name('dropout/keep_prob:0')
         predicted_results = graph.get_tensor_by_name('Readout/predicted_results:0')
 
-        for img_path in img_paths:
+        #Summaries to visualize activation map from CNN2 on tensorboard
+        cnn1_batch_norm_output = graph.get_tensor_by_name('CNN2/batch_normalization/cond/Merge:0')
+        splits = tf.split(cnn1_batch_norm_output, 32, 3)
+        summaries = [tf.summary.image('cnn2_' + str(i), split, 32) for split, i in zip(splits, range(len(splits)))]
+                
+        summary_writer = tf.summary.FileWriter('log/', sess.graph)
+
+        img_paths = img_paths[:1]
+        for img_path, i in zip(img_paths, range(len(img_paths))):
             image, coords, spots = extract_image_data(img_path)
             feed_dict = {images: spots, keep_prob: 1.0, training_flag: False}
             occupancy_results = sess.run(predicted_results, feed_dict)
-            
+            summary = sess.run(summaries, feed_dict)
+
+            for s, j in zip(summary, range(len(summary))):
+                summary_writer.add_summary(s, i*len(img_paths)+j)
             for spot_result, spot_coords in zip(occupancy_results, coords):
                 #Green for empty spots, red for occupied
                 if bool(spot_result) is True:
@@ -107,3 +118,5 @@ if __name__ == "__main__":
         #     canvas.create_image(10,10, anchor=tk.NW, image=img)
         #     window.update()
         #     time.sleep(.5)
+
+        summary_writer.close()
