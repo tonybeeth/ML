@@ -60,9 +60,9 @@ if __name__ == "__main__":
 	EPOCHS = 10
 	train_percent = 0.7 #percentage of data to train
 	validation_percent = 0.15
-	train_batch_size = 256 #num images used in an ideal training batch
-	validation_batch_size = 3000
-	test_batch_size = 3000 #num images used in an ideal testing batch
+	train_batch_size = 3000 #num images used in an ideal training batch
+	validation_batch_size = 6000
+	test_batch_size = 6000 #num images used in an ideal testing batch
 
 	#directories containing images
 	PKLOT_SEGMENTED_DIR = os.environ.get('PKLOT_DATA') + '/PKLot/PKLotSegmented/'
@@ -148,7 +148,7 @@ if __name__ == "__main__":
 		test_writer = tf.summary.FileWriter(log_dir + '/test', sess.graph)
 		validation_writer = tf.summary.FileWriter(log_dir + '/validation', sess.graph)
 		writer = tf.summary.FileWriter(log_dir, sess.graph)
-		#saver = tf.train.Saver()
+		saver = tf.train.Saver()
 		tf.local_variables_initializer().run()
 		tf.global_variables_initializer().run()
 
@@ -207,5 +207,5 @@ if __name__ == "__main__":
 		test_writer.close()
 		writer.close()
 
-		#saver.save(sess, './model/model')
+		saver.save(sess, './model_larger_batches/model')
 
