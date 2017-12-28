@@ -73,7 +73,7 @@ def four_point_transform(image, pts):
     warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
 
     # return the warped image
-    return cv2.resize(warped, (image_size, image_size))
+    return warped
 
 def extract_image_data(img_path):
     image = cv2.imread(img_path)
@@ -103,7 +103,20 @@ def extract_image_data(img_path):
         #Crop and resize image
         spot = image[minpoint[1]:maxpoint[1], minpoint[0]:maxpoint[0]]
         spot = cv2.resize(spot, (image_size, image_size))
-        spot = four_point_transform(image, np.array([botleft, topleft, topright, botright]))
+
+        #https://stackoverflow.com/questions/2992264/extracting-a-quadrilateral-image-to-a-rectangle/2992759#2992759
+        corners = np.array([botleft, topleft, topright, botright], np.float32)
+        target = np.array([(0,0), (0,image_size), (image_size, image_size), (image_size, 0)], np.float32)
+        mat = cv2.getPerspectiveTransform(corners, target)
+        out = cv2.warpPerspective(image, mat, (image_size, image_size))
+        
+        warped = four_point_transform(image, corners)
+        warped = cv2.resize(warped, (image_size, image_size))
+        #print(warped.shape)
+        cv2.imshow('spot', spot)
+        cv2.imshow('out', out)
+        cv2.waitKey(0)
+        
         spots.append(spot)
     return image, coords, np.asarray(spots)
 
@@ -127,50 +140,23 @@ if __name__ == "__main__":
         lot_img_paths = glob.glob(lot_img_pattern)
         img_paths.extend(random.sample(lot_img_paths, num_imgs_per_lot))
     random.shuffle(img_paths)
+    
+    img_paths = ['D:\PKLot/PKLot/PKLot/UFPR05/Sunny/2013-03-03/2013-03-03_06_45_00.jpg']
+    for img_path, i in zip(img_paths, range(len(img_paths))):
+        image, coords, spots = extract_image_data(img_path)
+        # for spot_result, spot_coords in zip(occupancy_results, coords):
+        #     #Green for empty spots, red for occupied
+        #     if bool(spot_result) is True:
+        #         #BGR
+        #         color = (0,0,255)
+        #     else:
+        #         color = (0,255,0)
+        #     #Draw lines around spot on image
+        #     cv2.polylines(image, [np.array(spot_coords)], isClosed=True, color=color, thickness=2)
 
-    #Create session config with soft placement and prevent allocation of all GPU memory
-    config = tf.ConfigProto(allow_soft_placement=True)
-    config.gpu_options.allow_growth = True
-    with tf.Session(config=config) as sess:
-        #Load meta graph and restore weights
-        saver = tf.train.import_meta_graph('../model_larger_batches/model.meta')
-        saver.restore(sess, tf.train.latest_checkpoint('../model_larger_batches/'))
-        #Get tensors from loaded graph
-        graph = tf.get_default_graph()
-        images = graph.get_tensor_by_name('input/images:0')
-        training_flag = graph.get_tensor_by_name('input/training_flag:0')
-        keep_prob = graph.get_tensor_by_name('dropout/keep_prob:0')
-        predicted_results = graph.get_tensor_by_name('Readout/predicted_results:0')
-
-        #Summaries to visualize activation map from CNN2 on tensorboard
-        cnn1_batch_norm_output = graph.get_tensor_by_name('CNN2/batch_normalization/cond/Merge:0')
-        splits = tf.split(cnn1_batch_norm_output, 32, 3)
-        summaries = [tf.summary.image('cnn2_' + str(i), split, 32) for split, i in zip(splits, range(len(splits)))]
-                
-        summary_writer = tf.summary.FileWriter('log/', sess.graph)
-
-        #img_paths = img_paths[:1]
-        for img_path, i in zip(img_paths, range(len(img_paths))):
-            image, coords, spots = extract_image_data(img_path)
-            feed_dict = {images: spots, keep_prob: 1.0, training_flag: False}
-            occupancy_results = sess.run(predicted_results, feed_dict)
-            summary = sess.run(summaries, feed_dict)
-
-            for s, j in zip(summary, range(len(summary))):
-                summary_writer.add_summary(s, i*len(img_paths)+j)
-            for spot_result, spot_coords in zip(occupancy_results, coords):
-                #Green for empty spots, red for occupied
-                if bool(spot_result) is True:
-                    #BGR
-                    color = (0,0,255)
-                else:
-                    color = (0,255,0)
-                #Draw lines around spot on image
-                cv2.polylines(image, [np.array(spot_coords)], isClosed=True, color=color, thickness=2)
-
-            #Display results on image
-            cv2.imshow(img_path, image)
-            cv2.waitKey(0)
+        #Display results on image
+        #cv2.imshow(img_path, image)
+        #cv2.waitKey(0)
 
         # for img_path in img_paths:
         #     img = cv2.imread(img_path)
@@ -180,5 +166,3 @@ if __name__ == "__main__":
         #     canvas.create_image(10,10, anchor=tk.NW, image=img)
         #     window.update()
         #     time.sleep(.5)
-
-        summary_writer.close()
