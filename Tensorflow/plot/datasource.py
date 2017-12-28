@@ -17,14 +17,14 @@ EMPTY = np.array([1.0, 0.0])
 
 #Retrieves images' paths from directory
 def GetImagesPaths(path_pattern):
-	pattern = path_pattern + '*.jpg'
+	pattern = path_pattern + '*.xml'
 	paths = glob.glob(pattern)
 	print (pattern + '. #files: ' + str(len(paths)))
 	return paths
-	
+
 #Reads of a parking lot, parses the spots and return them with their corresponding labels
-def process_image(img_path):
-	xml_path = re.sub('jpg$', 'xml', img_path)
+def process_image(xml_path):
+	img_path = re.sub('xml$', 'jpg', xml_path)
 	image = cv2.imread(img_path, cv2.IMREAD_COLOR)
 
 	spots = []
@@ -78,7 +78,7 @@ class DataSet(object):
 
 		self._num_images_processed = 0
 		self.dump_log()
-		
+
 	#Returns the next batch of data
 	def next_batch(self):
 		#Retrieve next batch of data
@@ -90,7 +90,7 @@ class DataSet(object):
 		labels = np.concatenate(np.array(labels))
 		self._num_images_processed += self._batch_size #accumulate number of images processed
 		return images, labels
-	
+
 	#Dump values to the screen
 	def dump_log(self):
 		print('---------------------------------------------------')
@@ -99,18 +99,18 @@ class DataSet(object):
 		print('Batch size->', self._batch_size)
 		print('Image size->', self._image_size)
 		print('---------------------------------------------------')
-		
+
 	#Returns false after the last batch and starts over
 	def batch_rem(self):
 		return_val = self._num_images_processed < self._num_images
 		if self._num_images_processed >= self._num_images:
 			self._num_images_processed = 0
 		return return_val
-			
+
 	@property
 	def size(self):
 		return self._num_images
-	
+
 class DataSource(object):
 	def __init__(self,
 			lot_path_patterns,
@@ -135,7 +135,7 @@ class DataSource(object):
 				self.validation = []
 				self.test = []
 		paths = PathSet()
-		
+
 		self._num_images = 0
 		random.seed(SEED)
 		#This routine will ensure that each set (train, valid, test) contains the same proportion of data from each lot
@@ -157,7 +157,7 @@ class DataSource(object):
 			random.shuffle(paths.train)
 			random.shuffle(paths.validation)
 			random.shuffle(paths.test)
-		
+
 		print('Total Images', self.size)
 		#create training, validation and testing sets
 		self.train = DataSet(paths.train, train_batch_size, image_size, process_pool=process_pool, name='Training')
@@ -168,5 +168,5 @@ class DataSource(object):
 	def size(self):
 		return self._num_images
 
-	
-			
+
+
