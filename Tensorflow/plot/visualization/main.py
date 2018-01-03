@@ -100,10 +100,12 @@ def extract_image_data(img_path):
         minpoint = coords_op(min)
         maxpoint = coords_op(max)
 
-        #Crop and resize image
-        spot = image[minpoint[1]:maxpoint[1], minpoint[0]:maxpoint[0]]
-        spot = cv2.resize(spot, (image_size, image_size))
-        spot = four_point_transform(image, np.array([botleft, topleft, topright, botright]))
+        #Warp image
+        #https://stackoverflow.com/questions/2992264/extracting-a-quadrilateral-image-to-a-rectangle/2992759#2992759
+        corners = np.array([botleft, topleft, topright, botright], np.float32)
+        target = np.array([(0,0), (0,image_size), (image_size, image_size), (image_size, 0)], np.float32)
+        mat = cv2.getPerspectiveTransform(corners, target)
+        spot = cv2.warpPerspective(image, mat, (image_size, image_size))
         spots.append(spot)
     return image, coords, np.asarray(spots)
 
@@ -133,8 +135,8 @@ if __name__ == "__main__":
     config.gpu_options.allow_growth = True
     with tf.Session(config=config) as sess:
         #Load meta graph and restore weights
-        saver = tf.train.import_meta_graph('../model_larger_batches/model.meta')
-        saver.restore(sess, tf.train.latest_checkpoint('../model_larger_batches/'))
+        saver = tf.train.import_meta_graph('../NBM_model/model.meta')
+        saver.restore(sess, tf.train.latest_checkpoint('../NBM_model/'))
         #Get tensors from loaded graph
         graph = tf.get_default_graph()
         images = graph.get_tensor_by_name('input/images:0')
@@ -143,21 +145,21 @@ if __name__ == "__main__":
         predicted_results = graph.get_tensor_by_name('Readout/predicted_results:0')
 
         #Summaries to visualize activation map from CNN2 on tensorboard
-        cnn1_batch_norm_output = graph.get_tensor_by_name('CNN2/batch_normalization/cond/Merge:0')
-        splits = tf.split(cnn1_batch_norm_output, 32, 3)
-        summaries = [tf.summary.image('cnn2_' + str(i), split, 32) for split, i in zip(splits, range(len(splits)))]
+        #cnn1_batch_norm_output = graph.get_tensor_by_name('CNN2/batch_normalization/cond/Merge:0')
+        #splits = tf.split(cnn1_batch_norm_output, 32, 3)
+        #summaries = [tf.summary.image('cnn2_' + str(i), split, 32) for split, i in zip(splits, range(len(splits)))]
                 
-        summary_writer = tf.summary.FileWriter('log/', sess.graph)
+        #summary_writer = tf.summary.FileWriter('log/', sess.graph)
 
-        #img_paths = img_paths[:1]
+        img_paths = glob.glob('D:\PKLot/PKLot/PKLot/UFPR04/Rainy/2013-01-21/*.jpg')
         for img_path, i in zip(img_paths, range(len(img_paths))):
             image, coords, spots = extract_image_data(img_path)
             feed_dict = {images: spots, keep_prob: 1.0, training_flag: False}
             occupancy_results = sess.run(predicted_results, feed_dict)
-            summary = sess.run(summaries, feed_dict)
+            #summary = sess.run(summaries, feed_dict)
 
-            for s, j in zip(summary, range(len(summary))):
-                summary_writer.add_summary(s, i*len(img_paths)+j)
+            #for s, j in zip(summary, range(len(summary))):
+            #   summary_writer.add_summary(s, i*len(img_paths)+j)
             for spot_result, spot_coords in zip(occupancy_results, coords):
                 #Green for empty spots, red for occupied
                 if bool(spot_result) is True:
@@ -181,4 +183,4 @@ if __name__ == "__main__":
         #     window.update()
         #     time.sleep(.5)
 
-        summary_writer.close()
+        #summary_writer.close()

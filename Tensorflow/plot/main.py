@@ -56,13 +56,13 @@ if __name__ == "__main__":
 		print('Cannot locate PKLOT_DATA in environment')
 		exit()
 
-	BATCH_NORM = True
+	BATCH_NORM = False
 	EPOCHS = 20
 	train_percent = 0.7 #percentage of data to train
 	validation_percent = 0.15
 	train_batch_size = 3 #num images used in an ideal training batch
-	validation_batch_size = 60
-	test_batch_size = 60 #num images used in an ideal testing batch
+	validation_batch_size = 30
+	test_batch_size = 30 #num images used in an ideal testing batch
 
 	#directories containing images
 	PKLOT_SEGMENTED_DIR = os.environ.get('PKLOT_DATA') + '/PKLot/PKLot/'
@@ -143,7 +143,7 @@ if __name__ == "__main__":
 
 	startTime = time.time()
 	with tf.Session(config=config) as sess:
-		log_dir = 'log/'
+		log_dir = 'NBM_log/'
 		train_writer = tf.summary.FileWriter(log_dir + '/train', sess.graph)
 		test_writer = tf.summary.FileWriter(log_dir + '/test', sess.graph)
 		validation_writer = tf.summary.FileWriter(log_dir + '/validation', sess.graph)
@@ -207,5 +207,5 @@ if __name__ == "__main__":
 		test_writer.close()
 		writer.close()
 
-		saver.save(sess, './model/model')
+		saver.save(sess, './NBM_model/model')
 
